@@ -1,0 +1,40 @@
+---
+title: "Introduction"
+description: "A comprehensive guide to integrating and operating the Star-Pay payment gateway within your systems."
+---
+
+## Welcome
+
+Welcome to the Star-Pay API Documentation — your comprehensive guide to integrating and operating the Star-Pay payment gateway within your systems.
+
+Star-Pay is a secure, scalable, API-first payment gateway designed to simplify digital transaction processing for modern applications. Our platform enables fast, reliable, and traceable payment experiences with built-in role-based authorization for accountability and operational efficiency.
+
+Whether you're building customer-facing checkout systems, recurring billing solutions, or real-time payment verification features, Star-Pay provides the flexibility and security your team needs.
+
+## Who This Guide Is For
+
+This documentation is intended for:
+
+- Developers integrating payment functionality
+- Technical teams working on system integrations
+- Product engineers implementing secure payment workflows
+
+## Authentication
+
+All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+
+```json
+"security": [
+  {
+    "bearerAuth": []
+  }
+]
+```
+
+<Card
+  title="Star-Pay API Reference"
+  icon="credit-card"
+  href="/api-reference/openapi"
+>
+  Explore the full Star-Pay API specification and available endpoints.
+</Card>

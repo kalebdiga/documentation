@@ -1,0 +1,400 @@
+---
+description: How to create and verify HMAC-SHA256 signatures for secure
+  webhook callbacks.
+title: Callback Signature Verification
+---
+
+# HMAC Callback Signature Verification
+
+This guide explains how to securely verify incoming webhook or callback
+requests using **HMAC-SHA256**.
+
+HMAC ensures:
+
+- The request came from a trusted source
+- The payload was not modified in transit
+- The request is protected against timing attacks
+- Replay attacks are mitigated using timestamps
+
+> **Note:**  
+> Merchants can find their **Webhook Secret** in the **Dashboard → Webhooks** section.  
+> This secret is required to verify callback signatures.  
+> Keep it secure and never expose it in frontend code or public repositories.
+
+## Callback Headers
+
+When **Star Pay** sends a callback request to your server, the HTTP request includes the following required headers.
+
+```json
+{
+  "headers": {
+    "X-Signature": "79eb81c3d69395f5261dca9bc5f10079d54c49f8f40b1fc79f63635f3dbec3b8",
+    "X-Timestamp": "1770748190504"
+  }
+}
+```
+
+---
+
+## Verification Flow
+
+When receiving a callback:
+
+1. Extract `X-Timestamp` from the request headers.
+2. Extract `X-Signature` from the request headers.
+3. Recompute the expected signature:
+
+---
+
+## How Signature Generation Works
+
+The signature is generated using:
+
+    HMAC_SHA256(secret, `${timestamp}.${JSON.stringify(payload)}`)
+
+The timestamp is included in the message to prevent replay attacks.
+
+---
+
+<Tabs>
+<Tab title="JavaScript">
+```javascript
+ import crypto from "crypto";
+
+/**
+ * Create HMAC-SHA256 signature for a payload
+ * Matches the signature used when sending the callback
+ */
+export function createSignature(
+  payload: unknown,
+  secret: string,
+  timestamp: string
+): string {
+  const body = JSON.stringify(payload);
+  const message = `${timestamp}.${body}`; // include timestamp to prevent replay
+  return crypto.createHmac("sha256", secret).update(message).digest("hex");
+}
+
+/**
+ * Verify incoming callback signature
+ * @param payload - JSON payload received
+ * @param timestamp - X-Timestamp header from request
+ * @param signature - X-Signature header from request
+ * @param secret - Merchant's callback secret
+ */
+export function verifySignature(
+  payload: unknown,
+  timestamp: string,
+  signature: string,
+  secret: string
+): boolean {
+  const expectedSignature = createSignature(payload, secret, timestamp);
+
+  const expectedBuffer = Buffer.from(expectedSignature, "hex");
+  const signatureBuffer = Buffer.from(signature, "hex");
+
+  if (expectedBuffer.length !== signatureBuffer.length) return false;
+
+  // Timing-safe comparison to prevent timing attacks
+  return crypto.timingSafeEqual(expectedBuffer, signatureBuffer);
+}
+
+```
+</Tab>
+<Tab title="Go">
+```go
+package signature
+
+import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"crypto/subtle"
+	"encoding/hex"
+	"encoding/json"
+)
+
+func CreateSignature(payload interface{}, secret string, timestamp string) (string, error) {
+	body, err := json.Marshal(payload)
+	if err != nil {
+		return "", err
+	}
+
+	message := timestamp + "." + string(body)
+
+	h := hmac.New(sha256.New, []byte(secret))
+	h.Write([]byte(message))
+	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+func VerifySignature(payload interface{}, timestamp, signature, secret string) (bool, error) {
+	expectedSignature, err := CreateSignature(payload, secret, timestamp)
+	if err != nil {
+		return false, err
+	}
+
+	expectedBytes, _ := hex.DecodeString(expectedSignature)
+	providedBytes, _ := hex.DecodeString(signature)
+
+	if len(expectedBytes) != len(providedBytes) {
+		return false, nil
+	}
+
+	return subtle.ConstantTimeCompare(expectedBytes, providedBytes) == 1, nil
+}
+
+
+```
+</Tab>
+<Tab title="Python">
+```python
+import hmac
+import hashlib
+import json
+
+
+def create_signature(payload, secret, timestamp):
+    body = json.dumps(payload, separators=(",", ":"))  # consistent JSON
+    message = f"{timestamp}.{body}"
+
+    signature = hmac.new(
+        secret.encode("utf-8"),
+        message.encode("utf-8"),
+        hashlib.sha256
+    ).hexdigest()
+
+    return signature
+
+
+def verify_signature(payload, timestamp, signature, secret):
+    expected_signature = create_signature(payload, secret, timestamp)
+
+    return hmac.compare_digest(expected_signature, signature)
+
+
+```
+</Tab>
+<Tab title="C#">
+```csharp
+using System;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+
+public static class SignatureUtil
+{
+    public static string CreateSignature(object payload, string secret, string timestamp)
+    {
+        string body = JsonSerializer.Serialize(payload);
+        string message = $"{timestamp}.{body}";
+
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
+        byte[] hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(message));
+
+        return Convert.ToHexString(hash).ToLower();
+    }
+
+    public static bool VerifySignature(object payload, string timestamp, string signature, string secret)
+    {
+        string expectedSignature = CreateSignature(payload, secret, timestamp);
+
+        byte[] expectedBytes = Convert.FromHexString(expectedSignature);
+        byte[] providedBytes = Convert.FromHexString(signature);
+
+        return CryptographicOperations.FixedTimeEquals(expectedBytes, providedBytes);
+    }
+}
+
+
+```
+</Tab>
+<Tab title="cURL (OpenSSL)">
+```bash
+#!/bin/bash
+
+SECRET="your_secret_here"
+TIMESTAMP=$(date +%s) # Unix timestamp
+BODY='{"order_id":123,"status":"paid"}'
+
+# Create signature using openssl
+SIGNATURE=$(echo -n "${TIMESTAMP}.${BODY}" | openssl dgst -sha256 -hmac "$SECRET" | sed 's/^.* //')
+
+# Send POST request with headers
+curl -X POST "https://example.com/webhook" \
+     -H "Content-Type: application/json" \
+     -H "X-Timestamp: $TIMESTAMP" \
+     -H "X-Signature: $SIGNATURE" \
+     -d "$BODY"
+
+```
+</Tab>
+</Tabs>
+
+## Required Headers
+
+When receiving a callback request, extract:
+
+    X-Timestamp
+    X-Signature
+
+---
+
+## Example Usage in Express
+
+<Tabs>
+<Tab title="JavaScript">
+```javascript
+import express from "express";
+import { verifySignature } from "./signature";
+
+const app = express();
+app.use(express.json());
+
+app.post("/callback", (req, res) => {
+  const timestamp = req.header("X-Timestamp") as string;
+  const signature = req.header("X-Signature") as string;
+
+  if (!timestamp || !signature) {
+    return res.status(400).json({ message: "Missing headers" });
+  }
+
+  const isValid = verifySignature(
+    req.body,
+    timestamp,
+    signature,
+    process.env.CALLBACK_SECRET as string
+  );
+
+  if (!isValid) {
+    return res.status(401).json({ message: "Invalid signature" });
+  }
+
+  // ✅ Valid callback, process payload here
+  console.log("Payload received:", req.body);
+
+  res.status(200).json({ message: "Callback verified successfully" });
+});
+
+app.listen(3000, () => console.log("Server running on http://localhost:3000"));
+
+```
+</Tab>
+<Tab title="Go">
+```go
+import (
+	"github.com/gin-gonic/gin"
+	"net/http"
+)
+
+func CallbackHandler(c *gin.Context) {
+	var payload map[string]interface{}
+	if err := c.BindJSON(&payload); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid JSON"})
+		return
+	}
+
+	timestamp := c.GetHeader("X-Timestamp")
+	signature := c.GetHeader("X-Signature")
+	secret := "your_callback_secret_here"
+
+	valid, err := VerifySignature(payload, timestamp, signature, secret)
+	if err != nil || !valid {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid signature"})
+		return
+	}
+
+	// ✅ Valid callback
+	c.JSON(http.StatusOK, gin.H{"message": "Callback verified successfully"})
+}
+
+
+```
+</Tab>
+<Tab title="Python">
+```python
+from fastapi import FastAPI, Header, HTTPException, Request
+from signature import verify_signature  # Python version from earlier
+
+app = FastAPI()
+CALLBACK_SECRET = "your_callback_secret_here"
+
+@app.post("/callback")
+async def callback(request: Request, x_timestamp: str = Header(...), x_signature: str = Header(...)):
+    payload = await request.json()
+
+    if not verify_signature(payload, x_timestamp, x_signature, CALLBACK_SECRET):
+        raise HTTPException(status_code=401, detail="Invalid signature")
+
+    # ✅ Valid callback
+    return {"message": "Callback verified successfully"}
+
+
+
+```
+</Tab>
+<Tab title="C#">
+```csharp
+[ApiController]
+[Route("[controller]")]
+public class CallbackController : ControllerBase
+{
+    private readonly string secret = "your_callback_secret_here";
+
+    [HttpPost]
+    public IActionResult Post([FromBody] object payload)
+    {
+        var timestamp = Request.Headers["X-Timestamp"].ToString();
+        var signature = Request.Headers["X-Signature"].ToString();
+
+        if (string.IsNullOrEmpty(timestamp) || string.IsNullOrEmpty(signature))
+            return BadRequest(new { message = "Missing headers" });
+
+        bool isValid = SignatureUtil.VerifySignature(payload, timestamp, signature, secret);
+
+        if (!isValid)
+            return Unauthorized(new { message = "Invalid signature" });
+
+        // ✅ Valid callback
+        return Ok(new { message = "Callback verified successfully" });
+    }
+}
+
+
+```
+</Tab>
+<Tab title="cURL (OpenSSL)">
+```bash
+SECRET="your_secret_here"
+TIMESTAMP=$(date +%s)
+BODY='{"order_id":123,"status":"paid"}'
+
+SIGNATURE=$(echo -n "${TIMESTAMP}.${BODY}" | openssl dgst -sha256 -hmac "$SECRET" | sed 's/^.* //')
+
+curl -X POST "http://localhost:3000/callback" \
+     -H "Content-Type: application/json" \
+     -H "X-Timestamp: $TIMESTAMP" \
+     -H "X-Signature: $SIGNATURE" \
+     -d "$BODY"
+
+
+```
+</Tab>
+</Tabs>
+
+## Security Notes
+
+- Always use `crypto.timingSafeEqual` to prevent timing attacks.
+- Reject requests with missing headers.
+- Optionally validate that the timestamp is within an acceptable time
+  window (e.g., ±5 minutes).
+- Never expose your callback secret publicly.
+
+---
+
+## Summary
+
+| Feature | Purpose |
+| --- | --- |
+| HMAC-SHA256 | Ensures data integrity |
+| Timestamp | Prevents replay attacks |
+| timingSafeEqual | Prevents timing attacks |
+| Shared Secret | Authenticates sender |

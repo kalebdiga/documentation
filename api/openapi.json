@@ -12,30 +12,38 @@
     }
   ],
   "paths": {
-    "/erp/get-institutions": {
-      "get": {
-        "operationId": "getInstitutions",
-        "tags": ["erp"],
-        "summary": "Get supported institutions",
+    "/trdp/order": {
+      "post": {
+        "operationId": "setorder",
+        "tags": ["thirdparty"],
+        "summary": "create order",
+        "x-codeSamples": [
+          {
+            "lang": "csharp",
+            "label": "C#",
+            "source": "using System.Net.Http;\n\nusing var client = new HttpClient();\nvar response = await client.GetAsync(\"https://starpayqa.starpayethiopia.com/v1/starpay-api/trdp/orde\");\nConsole.WriteLine(await response.Content.ReadAsStringAsync());\n"
+          }
+        ],
         "parameters": [
           {
             "in": "header",
             "name": "x-api-secret",
             "required": true,
-            "description": "API secret key.",
+            "description": "The App Secret provided by CBE.",
             "schema": {
               "type": "string",
-              "example": "MFUxSN98EV5IUU+RhYZh2f866adcTa4F5HJ2dGI3t8+MH3cvfk/gAZ492TnxwdiI"
+              "example": "X/2uxXAjJqaai5gRzXHzcFPcx9E6B3pibBbVSoce1U23q5hR2Sr5pxlh6WLQZBep"
             }
           }
         ],
         "responses": {
-          "200": {
-            "description": "Institution list fetched successfully.",
+          "201": {
+            "description": "The request was successful, and a new `resource` was created.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetInstitutionsResponse"
+                  "$ref": "#/components/schemas/OrderCreationResponse",
+                  "required": ["status", "timestamp", "message", "data"]
                 }
               }
             }
@@ -43,52 +51,72 @@
           "400": {
             "$ref": "#/components/responses/BadRequest"
           },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           },
           "500": {
             "$ref": "#/components/responses/ServerError"
           }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "The request body(payload) includes the following fields:\n\n- `api_secret`\n- `callbackURL`\n If you want to receive the customer back in your application after the transaction, you can provide a callback URL. Starpay will automatically redirect the user to your URL when the payment is completed successfully or Failed.\n## If you provide a callbackURL, StarPay will send the following response to that URL after a successful payment.\n\n```json \n {\n \n billRefNo: '33WJ8946WB',\n status: 'PAID',\n timestamp: '2025-12-10T11:05:37.566Z',\n message: 'Payment successful',\n merchantId: '6888dc21ee7cbfe63657144f',\n customerId: '656445e6-20fa-440d-b8c9-0a588d1ca05b',\n externalReferenceId: 'CLA9SR5XR9',\n amount: 1,\n payment_type: 'USSD_PUSH',\n receipt_url: 'https://receipt.starpayethiopia.com/receiptqa/WST-33WJ8946WB'\n}\n\n```\n\n## The error response for failed payments.\n\n```json \n {\n \n  billRefNo: '5I974ZLE60',\n  status: 'FAILED',\n  message: 'Payment failed'\n}\n\n```",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/createOrder"
+              }
+            }
+          }
         }
       }
     },
-    "/erp/account-lookup": {
+    "/trdp/verify": {
       "post": {
-        "operationId": "accountLookup",
-        "tags": ["erp"],
-        "summary": "Lookup account holder details",
+        "operationId": "verifypayment",
+        "tags": ["thirdparty"],
+        "summary": "for payment verification",
+        "x-codeSamples": [
+          {
+            "lang": "csharp",
+            "label": "C#",
+            "source": "using System.Net.Http;\n\nusing var client = new HttpClient();\nvar response = await client.GetAsync(\"https://starpayqa.starpayethiopia.com/v1/starpay-api/trdp/verify\");\nConsole.WriteLine(await response.Content.ReadAsStringAsync());\n"
+          }
+        ],
         "parameters": [
           {
             "in": "header",
             "name": "x-api-secret",
             "required": true,
-            "description": "API secret key.",
+            "description": "The App Secret provided by CBE.",
             "schema": {
               "type": "string",
-              "example": "MFUxSN98EV5IUU+RhYZh2f866adcTa4F5HJ2dGI3t8+MH3cvfk/gAZ492TnxwdiI"
+              "example": "X/2uxXAjJqaai5gRzXHzcFPcx9E6B3pibBbVSoce1U23q5hR2Sr5pxlh6WLQZBep"
             }
           }
         ],
         "requestBody": {
           "required": true,
+          "description": "verify",
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AccountLookupRequest"
+                "$ref": "#/components/schemas/verifypayment"
               }
             }
           }
         },
         "responses": {
-          "200": {
-            "description": "Account lookup successful.",
+          "201": {
+            "description": "The request was successful, and a new `resource` was created.",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/AccountLookupResponse"
+                  "$ref": "#/components/schemas/PaymentVerificationResponse",
+                  "required": ["status", "timestamp", "message", "data"]
                 }
               }
             }
@@ -96,137 +124,11 @@
           "400": {
             "$ref": "#/components/responses/BadRequest"
           },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
           "404": {
             "$ref": "#/components/responses/NotFound"
           },
-          "500": {
-            "$ref": "#/components/responses/ServerError"
-          }
-        }
-      }
-    },
-    "/erp/initiate-payment": {
-      "post": {
-        "operationId": "initiatePayment",
-        "tags": ["erp"],
-        "summary": "Initiate payment",
-        "parameters": [
-          {
-            "in": "header",
-            "name": "x-api-secret",
-            "required": true,
-            "description": "API secret key.",
-            "schema": {
-              "type": "string",
-              "example": "MFUxSN98EV5IUU+RhYZh2f866adcTa4F5HJ2dGI3t8+MH3cvfk/gAZ492TnxwdiI"
-            }
-          },
-          {
-            "in": "header",
-            "name": "x-message-id",
-            "required": false,
-            "description": "Required when `paymentInitiationType` is `OTP`.",
-            "schema": {
-              "type": "string",
-              "example": "0a162ea504918e1c85f64da9733b64bf25ff400394f8e1da6cdfb656e1338b9a8fe47e1b32429f13b1495b075857bf98"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/InitiatePaymentRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Payment initiated successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/InitiatePaymentResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "500": {
-            "$ref": "#/components/responses/ServerError"
-          }
-        }
-      }
-    },
-    "/erp/verify-otp-payment": {
-      "post": {
-        "operationId": "verifyOtpPayment",
-        "tags": ["erp"],
-        "summary": "Verify OTP payment",
-        "parameters": [
-          {
-            "in": "header",
-            "name": "x-api-secret",
-            "required": true,
-            "description": "API secret key.",
-            "schema": {
-              "type": "string",
-              "example": "MFUxSN98EV5IUU+RhYZh2f866adcTa4F5HJ2dGI3t8+MH3cvfk/gAZ492TnxwdiI"
-            }
-          },
-          {
-            "in": "header",
-            "name": "x-message-id",
-            "required": true,
-            "description": "Message ID from account lookup when verifying OTP payment.",
-            "schema": {
-              "type": "string",
-              "example": "0a162ea504918e1c85f64da9733b64bf25ff400394f8e1da6cdfb656e1338b9a8fe47e1b32429f13b1495b075857bf98"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/VerifyOtpPaymentRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "OTP payment verified successfully.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VerifyOtpPaymentResponse"
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
           },
           "500": {
             "$ref": "#/components/responses/ServerError"
@@ -286,313 +188,6 @@
           }
         },
         "required": ["productId", "quantity", "item_name", "unit_price"]
-      },
-      "Institution": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "example": "69ae7e39f67d9ae4f44f18e5"
-          },
-          "swiftCode": {
-            "type": "string",
-            "example": "ABAYETAA"
-          },
-          "institutionName": {
-            "type": "string",
-            "example": "Abay Bank"
-          },
-          "logo": {
-            "type": "string",
-            "format": "uri"
-          },
-          "pushPayment": {
-            "type": "boolean",
-            "example": true
-          },
-          "otpPayment": {
-            "type": "boolean",
-            "example": false
-          },
-          "ussdPayment": {
-            "type": "boolean",
-            "example": true
-          },
-          "ussdCallbackType": {
-            "type": "string",
-            "example": "Callback"
-          }
-        },
-        "required": ["id", "swiftCode", "institutionName", "logo", "pushPayment", "otpPayment"]
-      },
-      "GetInstitutionsResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "example": "success"
-          },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "message": {
-            "type": "string",
-            "example": "Success"
-          },
-          "data": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/Institution"
-            }
-          }
-        },
-        "required": ["status", "timestamp", "message", "data"]
-      },
-      "AccountLookupRequest": {
-        "type": "object",
-        "properties": {
-          "swift_code": {
-            "type": "string",
-            "example": "DASHETAA"
-          },
-          "accountNumber": {
-            "type": "string",
-            "example": "5075361069011"
-          }
-        },
-        "required": ["swift_code", "accountNumber"]
-      },
-      "AccountLookupResponseData": {
-        "type": "object",
-        "properties": {
-          "accountHolderName": {
-            "type": "string",
-            "example": "TESFAYE LEMI BEKELE"
-          },
-          "messageId": {
-            "type": "string"
-          }
-        },
-        "required": ["accountHolderName", "messageId"]
-      },
-      "AccountLookupResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "example": "success"
-          },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "message": {
-            "type": "string",
-            "example": "Success"
-          },
-          "data": {
-            "$ref": "#/components/schemas/AccountLookupResponseData"
-          }
-        },
-        "required": ["status", "timestamp", "message", "data"]
-      },
-      "PaymentCustomer": {
-        "type": "object",
-        "properties": {
-          "fullName": {
-            "type": "string",
-            "example": "Walk-in Customer"
-          },
-          "phoneNumber": {
-            "type": "string",
-            "example": "+251944719460"
-          },
-          "email": {
-            "type": "string",
-            "format": "email",
-            "example": "customer@gmail.com"
-          },
-          "accountNumber": {
-            "type": "string",
-            "description": "Required when payment type is OTP.",
-            "example": "5075361069011"
-          }
-        },
-        "required": ["fullName", "phoneNumber", "email"]
-      },
-      "InitiatePaymentRequest": {
-        "type": "object",
-        "properties": {
-          "customer": {
-            "$ref": "#/components/schemas/PaymentCustomer"
-          },
-          "amount": {
-            "type": "number",
-            "example": 100
-          },
-          "paymentInitiationType": {
-            "type": "string",
-            "enum": ["USSD_PUSH", "LOCAL_CARD", "INTERNATIONAL_CARD", "QR", "REFERENCE", "OTP", "CASH", "IN_APP_PUSH"],
-            "example": "USSD_PUSH"
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PaymentItem"
-            }
-          },
-          "customerVat": {
-            "type": "number",
-            "example": 0.03
-          },
-          "swift_code": {
-            "type": "string",
-            "example": "telebirr"
-          },
-          "callbackURL": {
-            "type": "string",
-            "format": "uri",
-            "example": "http://localhost:2222/starpay/complete_payment"
-          },
-          "currency": {
-            "type": "string",
-            "example": "ETB"
-          }
-        },
-        "required": ["customer", "amount", "paymentInitiationType", "items", "customerVat", "swift_code", "callbackURL", "currency"]
-      },
-      "InitiatePaymentResponseData": {
-        "type": "object",
-        "properties": {
-          "bill_ref": {
-            "type": "string",
-            "example": "NC61HO4977"
-          },
-          "customer_name": {
-            "type": "string",
-            "example": ""
-          }
-        },
-        "required": ["bill_ref", "customer_name"]
-      },
-      "InitiatePaymentResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "example": "success"
-          },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "message": {
-            "type": "string",
-            "example": "Success"
-          },
-          "data": {
-            "$ref": "#/components/schemas/InitiatePaymentResponseData"
-          }
-        },
-        "required": ["status", "timestamp", "message", "data"]
-      },
-      "VerifyOtpPaymentRequest": {
-        "type": "object",
-        "properties": {
-          "otpCode": {
-            "type": "string",
-            "example": "686435"
-          },
-          "accountNumber": {
-            "type": "string",
-            "example": "5075361069011"
-          },
-          "billRefNo": {
-            "type": "string",
-            "example": "HY724Z749C"
-          }
-        },
-        "required": ["otpCode", "accountNumber", "billRefNo"]
-      },
-      "VerifyOtpPaymentResponseData": {
-        "type": "object",
-        "properties": {
-          "transactionId": {
-            "type": "string",
-            "format": "uuid"
-          },
-          "billRefNo": {
-            "type": "string",
-            "example": "HY724Z749C"
-          },
-          "status": {
-            "type": "string",
-            "example": "PAID"
-          },
-          "amount": {
-            "type": "number",
-            "example": 100
-          },
-          "customerName": {
-            "type": "string",
-            "example": "Walk-in Customer"
-          },
-          "customerPhoneNumber": {
-            "type": "string",
-            "example": "+251944719460"
-          },
-          "merchantName": {
-            "type": "string",
-            "example": "kaldis hq"
-          },
-          "merchantId": {
-            "type": "string",
-            "example": "6992cc567b78d101f42345a6"
-          },
-          "externalReference": {
-            "type": "string",
-            "example": "075SMPC231670253"
-          },
-          "paymentChannel": {
-            "type": "string",
-            "example": "OTP_ACCOUNT"
-          },
-          "paidAt": {
-            "type": "string",
-            "example": "25 Mar 2026, 1:56 PM"
-          },
-          "redirectUrl": {
-            "type": "string",
-            "example": ""
-          },
-          "paidAmount": {
-            "type": "number",
-            "example": 100
-          }
-        },
-        "required": ["transactionId", "billRefNo", "status", "amount", "customerName", "customerPhoneNumber", "merchantName", "merchantId", "externalReference", "paymentChannel", "paidAt", "redirectUrl", "paidAmount"]
-      },
-      "VerifyOtpPaymentResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "example": "success"
-          },
-          "timestamp": {
-            "type": "string",
-            "format": "date-time"
-          },
-          "message": {
-            "type": "string",
-            "example": "Success"
-          },
-          "data": {
-            "$ref": "#/components/schemas/VerifyOtpPaymentResponseData"
-          }
-        },
-        "required": ["status", "timestamp", "message", "data"]
       },
       "PaymentRequest": {
         "type": "object",
@@ -1042,9 +637,6 @@
     }
   },
   "tags": [
-    {
-      "name": "erp"
-    },
     {
       "name": "thirdparty"
     }

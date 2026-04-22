@@ -1,122 +1,467 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "theme": "almond",
+  "name": "Mintlify",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#166E3F",
+    "light": "#26BD6C",
+    "dark": "#166E3F"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.ico",
+  "icons": {
+    "library": "lucide"
+  },
+  "interaction": {
+    "drilldown": false
+  },
   "navigation": {
-    "tabs": [
+    "languages": [
       {
-        "tab": "Guides",
-        "groups": [
+        "tabs": [
           {
-            "group": "Getting started",
-            "pages": [
-              "index",
-              "quickstart",
-              "development"
+            "tab": "Documentation",
+            "groups": [
+              {
+                "group": "Get started",
+                "icon": "rocket",
+                "pages": ["index"]
+              },
+              {
+                "group": "Api Reference",
+                "icon": "map",
+                "pages": [
+                  {
+                    "group": "Api Reference",
+                    "root": "api/introduction",
+                    "pages": [
+                      "api-reference/introduction",
+                      "api-reference/endpoint/get-institutions",
+                      "api-reference/endpoint/initiate-payment",
+                      "api-reference/endpoint/account-lookup",
+                      "api-reference/endpoint/verify-otp-payment",
+                      "api-reference/test-numbers",
+                      "api-reference/sign"
+                    ]
+                  }
+                ]
+              }
             ]
           },
+
           {
-            "group": "Customization",
-            "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
+            "tab": "API reference",
+            "groups": [
+              {
+                "group": "API documentation",
+                "pages": ["api-reference/introduction"]
+              },
+              {
+                "group": "Endpoints",
+                "pages": [
+                  "api-reference/endpoint/get-institutions",
+                  "api-reference/endpoint/initiate-payment",
+                  "api-reference/endpoint/account-lookup",
+                  "api-reference/endpoint/verify-otp-payment"
+                ]
+              },
+              {
+                "group": "API test Number",
+                "pages": ["api-reference/test-numbers"]
+              },
+              {
+                "group": "signature",
+                "pages": ["api-reference/sign"]
+              }
             ]
           }
-        ]
-      },
-      {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
-            ]
-          }
-        ]
+        ],
+        "language": "en"
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "dark": "/logo/dark.svg",
+    "href": "/"
   },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+  "api": {
+    "mdx": {
+      "auth": {
+        "method": "bearer"
       }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
     }
   },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+
+  "thumbnails": {
+    "background": "/images/thumbnail/background.svg"
   },
-  "footer": {
-    "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+  "contextual": {
+    "options": ["copy", "chatgpt", "claude", "add-mcp", "cursor", "vscode"]
+  },
+  "redirects": [
+    {
+      "source": "/content/components/accordions",
+      "destination": "/components/accordions"
+    },
+    {
+      "source": "/content/components/callouts",
+      "destination": "/components/callouts"
+    },
+    {
+      "source": "/content/components/cards",
+      "destination": "/components/cards"
+    },
+    {
+      "source": "/content/components/card-groups",
+      "destination": "/components/columns"
+    },
+    {
+      "source": "/content/components/code-groups",
+      "destination": "/components/code-groups"
+    },
+    {
+      "source": "/content/components/examples",
+      "destination": "/components/examples"
+    },
+    {
+      "source": "/content/components/expandables",
+      "destination": "/components/expandables"
+    },
+    {
+      "source": "/content/components/fields",
+      "destination": "/components/fields"
+    },
+    {
+      "source": "/content/components/frames",
+      "destination": "/components/frames"
+    },
+    {
+      "source": "/content/components/icons",
+      "destination": "/components/icons"
+    },
+    {
+      "source": "/content/components/mermaid-diagrams",
+      "destination": "/components/mermaid-diagrams"
+    },
+    {
+      "source": "/content/components/steps",
+      "destination": "/components/steps"
+    },
+    {
+      "source": "/content/components/tabs",
+      "destination": "/components/tabs"
+    },
+    {
+      "source": "/content/components/tooltips",
+      "destination": "/components/tooltips"
+    },
+    {
+      "source": "/content/components/update",
+      "destination": "/components/update"
+    },
+    {
+      "source": "/api-playground/openapi/setup",
+      "destination": "/api-playground/openapi-setup"
+    },
+    {
+      "source": "/api-playground/openapi/writing-openapi",
+      "destination": "/api-playground/openapi-setup"
+    },
+    {
+      "source": "/settings/authentication-personalization/*",
+      "destination": "/deploy/authentication-setup"
+    },
+    {
+      "source": "/authentication-personalization/*",
+      "destination": "/deploy/authentication-setup"
+    },
+    {
+      "source": "/deploy/personalization-setup",
+      "destination": "/create/personalization"
+    },
+    {
+      "source": "/ai-ingestion",
+      "destination": "/ai/llmstxt"
+    },
+    {
+      "source": "/api-reference/chat/*",
+      "destination": "/api/assistant/*"
+    },
+    {
+      "source": "/api-reference/*",
+      "destination": "/api/*"
+    },
+    {
+      "source": "/fr/api-reference/*",
+      "destination": "/fr/api/*"
+    },
+    {
+      "source": "/es/api-reference/*",
+      "destination": "/es/api/*"
+    },
+    {
+      "source": "/zh/api-reference/*",
+      "destination": "/zh/api/*"
+    },
+    {
+      "source": "/editor/getting-started",
+      "destination": "/editor/index"
+    },
+    {
+      "source": "/editor/content-management",
+      "destination": "/editor/index"
+    },
+    {
+      "source": "/editor/publishing",
+      "destination": "/editor/publish"
+    },
+    {
+      "source": "/editor/troubleshooting",
+      "destination": "/editor/index"
+    },
+    {
+      "source": "/guides/analytics",
+      "destination": "/optimize/analytics"
+    },
+    {
+      "source": "/guides/assistant",
+      "destination": "/ai/assistant"
+    },
+    {
+      "source": "/api-playground/customization/adding-sdk-examples",
+      "destination": "/api-playground/adding-sdk-examples"
+    },
+    {
+      "source": "/api-playground/customization/complex-data-types",
+      "destination": "/api-playground/complex-data-types"
+    },
+    {
+      "source": "/api-playground/customization/managing-page-visibility",
+      "destination": "/api-playground/managing-page-visibility"
+    },
+    {
+      "source": "/api-playground/customization/multiple-responses",
+      "destination": "/api-playground/multiple-responses"
+    },
+    {
+      "source": "/settings/broken-links",
+      "destination": "/create/broken-links"
+    },
+    {
+      "source": "/guides/changelogs",
+      "destination": "/create/changelogs"
+    },
+    {
+      "source": "/code",
+      "destination": "/create/code"
+    },
+    {
+      "source": "/components/files",
+      "destination": "/create/files"
+    },
+    {
+      "source": "/image-embeds",
+      "destination": "/create/image-embeds"
+    },
+    {
+      "source": "/list-table",
+      "destination": "/create/list-table"
+    },
+    {
+      "source": "/reusable-snippets",
+      "destination": "/create/reusable-snippets"
+    },
+    {
+      "source": "/text",
+      "destination": "/create/text"
+    },
+    {
+      "source": "/settings/custom-404-page",
+      "destination": "/customize/custom-404-page"
+    },
+    {
+      "source": "/settings/custom-domain",
+      "destination": "/customize/custom-domain"
+    },
+    {
+      "source": "/settings/custom-scripts",
+      "destination": "/customize/custom-scripts"
+    },
+    {
+      "source": "/react-components",
+      "destination": "/customize/react-components"
+    },
+    {
+      "source": "/themes",
+      "destination": "/customize/themes"
+    },
+    {
+      "source": "/advanced/dashboard/permissions",
+      "destination": "/dashboard/permissions"
+    },
+    {
+      "source": "/advanced/dashboard/roles",
+      "destination": "/dashboard/roles"
+    },
+    {
+      "source": "/advanced/dashboard/sso",
+      "destination": "/dashboard/sso"
+    },
+    {
+      "source": "/settings/ci",
+      "destination": "/deploy/ci"
+    },
+    {
+      "source": "/advanced/subpath/cloudflare",
+      "destination": "/deploy/cloudflare"
+    },
+    {
+      "source": "/guides/csp-configuration",
+      "destination": "/deploy/csp-configuration"
+    },
+    {
+      "source": "/guides/deployments",
+      "destination": "/deploy/deployments"
+    },
+    {
+      "source": "/settings/github",
+      "destination": "/deploy/github"
+    },
+    {
+      "source": "/settings/gitlab",
+      "destination": "/deploy/gitlab"
+    },
+    {
+      "source": "/guides/monorepo",
+      "destination": "/deploy/monorepo"
+    },
+    {
+      "source": "/settings/preview-deployments",
+      "destination": "/deploy/preview-deployments"
+    },
+    {
+      "source": "/guides/reverse-proxy",
+      "destination": "/deploy/reverse-proxy"
+    },
+    {
+      "source": "/advanced/subpath/route53-cloudfront",
+      "destination": "/deploy/route53-cloudfront"
+    },
+    {
+      "source": "/advanced/subpath/vercel",
+      "destination": "/deploy/vercel"
+    },
+    {
+      "source": "/editor/branches",
+      "destination": "/guides/branches"
+    },
+    {
+      "source": "/editor/git-concepts",
+      "destination": "/guides/git-concepts"
+    },
+    {
+      "source": "/analytics/improving-docs",
+      "destination": "/guides/improving-docs"
+    },
+    {
+      "source": "/api-playground/migrating-from-mdx",
+      "destination": "/guides/migrating-from-mdx"
+    },
+    {
+      "source": "/guides/migration",
+      "destination": "/migration"
+    },
+    {
+      "source": "/settings/seo",
+      "destination": "/optimize/seo"
+    },
+    {
+      "source": "/guides/hidden-page-example",
+      "destination": "/organize/hidden-page-example"
+    },
+    {
+      "source": "/guides/hidden-pages",
+      "destination": "/organize/hidden-pages"
+    },
+    {
+      "source": "/navigation",
+      "destination": "/organize/navigation"
+    },
+    {
+      "source": "/pages",
+      "destination": "/organize/pages"
+    },
+    {
+      "source": "/settings",
+      "destination": "/organize/settings"
+    },
+    {
+      "source": "/api-playground/mdx/:slug*",
+      "destination": "/api-playground/mdx-setup"
+    },
+    {
+      "source": "/api-playground/asyncapi/setup",
+      "destination": "/api-playground/asyncapi-setup"
+    },
+    {
+      "source": "/create/broken-links",
+      "destination": "/create/redirects"
+    },
+    {
+      "source": "/ai/autopilot",
+      "destination": "/ai/suggestions"
+    },
+    {
+      "source": "/ai/slack-app",
+      "destination": "/ai/slack-bot"
+    },
+    {
+      "source": "/changelog/overview",
+      "destination": "/changelog"
+    },
+    {
+      "source": "/ai/agent",
+      "destination": "/agent/index"
+    },
+    {
+      "source": "/ai/suggestions",
+      "destination": "/agent/suggestions"
+    },
+    {
+      "source": "/insights/overview",
+      "destination": "/optimize/analytics"
+    },
+    {
+      "source": "/insights/feedback",
+      "destination": "/optimize/feedback"
+    },
+    {
+      "source": "/migration-services/custom",
+      "destination": "/migration-services/enterprise"
+    },
+    {
+      "source": "/agent/suggestions",
+      "destination": "/agent/workflows"
+    },
+    {
+      "source": "/agent/quickstart",
+      "destination": "/agent/index"
+    }
+  ],
+  "integrations": {
+    "ga4": {
+      "measurementId": "G-RCYWHL7EQ7"
+    },
+    "posthog": {
+      "apiKey": "phc_eNuN6Ojnk9O7uWfC17z12AK85fNR0BY6IiGVy0Gfwzw"
+    }
+  },
+  "seo": {
+    "metatags": {
+      "canonical": "https://www.mintlify.com/docs",
+      "google-site-verification": "YRuJgIxsRnMkiRTYTo_tEsJSFyIE3AraEiukTbeV4Ag",
+      "og:locale": "en_US",
+      "twitter:site": "@mintlify"
     }
   }
 }

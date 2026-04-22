@@ -1,97 +1,75 @@
 ---
 title: "Introduction"
-description: "Welcome to the new home for your documentation"
+description: "Meet the next generation of documentation. AI-native, beautiful out-of-the-box, and built for developers."
+mode: "frame"
+keywords: ["overview", "platform", "getting started", "features"]
 ---
 
-## Setting up
+export const HeroCard = ({ title, description, href }) => {
+  return (
+    <a
+      href={href}
+      className="group relative block rounded-2xl p-6 overflow-hidden bg-[gray]/20 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 min-h-[180px]"
+    >
+      <img
+        src="/images/pattern.png"
+        alt="background pattern"
+        className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none"
+      />
 
-Get your documentation site up and running in minutes.
+      <div className="relative z-10 flex items-start gap-4">
+        <div>
+          <h3 className="text-3xl font-semibold text-gray-900 dark:text-white">
+            {title}
+          </h3>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+            {description}
+          </p>
+        </div>
+      </div>
+    </a>
 
-<Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
-  horizontal
->
-  Follow our three step quickstart guide.
-</Card>
+);
+};
 
-## Make it yours
+<div className="relative">
+  <div className="absolute top-0 botttom-0 left-0 right-0 opacity-80">
+    <img
+      src="/images/home/Cover-light.png"
+      className="block dark:hidden pointer-events-none w-full h-full"
+      alt="Decorative background image."
+    />
+    <img
+      src="/images/home/Cover-dark.png"
+      className="hidden dark:block pointer-events-none w-full h-full"
+      alt="Decorative background image."
+    />
+  </div>
 
-Design a docs site that looks great and empowers your users.
+  <div className=" z-10 pt-[200px] max-w-4xl mx-auto h-screen ">
+    <h1 className="block text-4xl font-medium text-center text-gray-900 dark:text-zinc-50 tracking-tight">
+     Starpay Documentation
+    </h1>
 
-<Columns cols={2}>
-  <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
-  >
-    Edit your docs locally and preview them in real time.
-  </Card>
-  <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
-  >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
-  </Card>
-  <Card
-    title="API documentation"
-    icon="terminal"
-    href="/api-reference/introduction"
-  >
-    Auto-generate API documentation from OpenAPI specifications.
-  </Card>
-</Columns>
+    <div className="max-w-xl mx-auto px-4 mt-4 text-lg text-center text-gray-500 dark:text-zinc-500">
+      Meet the next generation of documentation. AI-native, beautiful out-of-the-box, and built for developers and teams.
+    </div>
 
-## Create beautiful pages
+    <div className="px-6 lg:px-0  grid sm:grid-cols-2 gap-x-6 gap-y-4 mt-[50px]">
 
-Everything you need to create world-class documentation.
+<HeroCard
+  href="#"
+  title="Introduction"
+  description="Full visibility into float request history at every organizational level."
+/>
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+<HeroCard
+  title="API Integration"
+  description="Install the CLI to preview and develop your docs locally"
+  href="/api/introduction"
+/>
 
-## Need inspiration?
+    </div>
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+  </div>
+</div>

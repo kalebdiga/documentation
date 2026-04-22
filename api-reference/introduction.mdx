@@ -1,33 +1,42 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: "Introduction"
+description: "Integrate your ERP software with Star-Pay payment gateway endpoints."
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Star-Pay ERP API overview
 
-## Welcome
+This API reference helps you integrate your ERP software with the Star-Pay gateway.
+You can use these endpoints to fetch institutions, validate customer accounts, initiate payment, and verify OTP-based payment flows.
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+## Available ERP endpoints
+
+- `GET /erp/get-institutions`  
+  Get the list of supported institutions and payment capabilities.
+- `POST /erp/account-lookup`  
+  Validate account details and get a message ID for OTP payment flows.
+- `POST /erp/initiate-payment`  
+  Create a payment request for methods such as USSD push, OTP, card, QR, and more.
+- `POST /erp/verify-otp-payment`  
+  Complete OTP account payment using OTP code, account number, and bill reference.
+
+## Authentication headers
+
+All ERP endpoints require the `x-api-secret` header.
+For OTP verification flow, you also pass `x-message-id` where required.
+
+## Typical ERP integration flow
+
+1. Fetch institutions using `GET /erp/get-institutions`.
+2. Run account validation using `POST /erp/account-lookup`.
+3. Initiate payment using `POST /erp/initiate-payment`.
+4. If payment type is OTP, verify payment using `POST /erp/verify-otp-payment`.
+
+This flow gives you one GET endpoint and three POST endpoints to support ERP checkout and collection use cases.
 
 <Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
+  title="OpenAPI specification"
+  icon="credit-card"
+  href="/api-reference/openapi"
 >
-  View the OpenAPI specification file
+  View the full Star-Pay ERP OpenAPI schema and request/response models.
 </Card>
-
-## Authentication
-
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
-
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
-```
