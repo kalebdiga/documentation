@@ -63,14 +63,6 @@
                   "api-reference/endpoint/account-lookup",
                   "api-reference/endpoint/verify-otp-payment"
                 ]
-              },
-              {
-                "group": "API test Number",
-                "pages": ["api-reference/test-numbers"]
-              },
-              {
-                "group": "signature",
-                "pages": ["api-reference/sign"]
               }
             ]
           }
