@@ -323,7 +323,14 @@
             "example": "Callback"
           }
         },
-        "required": ["id", "swiftCode", "institutionName", "logo", "pushPayment", "otpPayment"]
+        "required": [
+          "id",
+          "swiftCode",
+          "institutionName",
+          "logo",
+          "pushPayment",
+          "otpPayment"
+        ]
       },
       "GetInstitutionsResponse": {
         "type": "object",
@@ -433,7 +440,16 @@
           },
           "paymentInitiationType": {
             "type": "string",
-            "enum": ["USSD_PUSH", "LOCAL_CARD", "INTERNATIONAL_CARD", "QR", "REFERENCE", "OTP", "CASH", "IN_APP_PUSH"],
+            "enum": [
+              "USSD_PUSH",
+              "LOCAL_CARD",
+              "INTERNATIONAL_CARD",
+              "QR",
+              "REFERENCE",
+              "OTP",
+              "CASH",
+              "IN_APP_PUSH"
+            ],
             "example": "USSD_PUSH"
           },
           "items": {
@@ -460,7 +476,16 @@
             "example": "ETB"
           }
         },
-        "required": ["customer", "amount", "paymentInitiationType", "items", "customerVat", "swift_code", "callbackURL", "currency"]
+        "required": [
+          "customer",
+          "amount",
+          "paymentInitiationType",
+          "items",
+          "customerVat",
+          "swift_code",
+          "callbackURL",
+          "currency"
+        ]
       },
       "InitiatePaymentResponseData": {
         "type": "object",
@@ -571,7 +596,21 @@
             "example": 100
           }
         },
-        "required": ["transactionId", "billRefNo", "status", "amount", "customerName", "customerPhoneNumber", "merchantName", "merchantId", "externalReference", "paymentChannel", "paidAt", "redirectUrl", "paidAmount"]
+        "required": [
+          "transactionId",
+          "billRefNo",
+          "status",
+          "amount",
+          "customerName",
+          "customerPhoneNumber",
+          "merchantName",
+          "merchantId",
+          "externalReference",
+          "paymentChannel",
+          "paidAt",
+          "redirectUrl",
+          "paidAmount"
+        ]
       },
       "VerifyOtpPaymentResponse": {
         "type": "object",
@@ -1030,14 +1069,6 @@
             }
           }
         }
-      }
-    },
-    "securitySchemes": {
-      "BearerJwt": {
-        "type": "http",
-        "scheme": "Bearer",
-        "bearerFormat": "Json Web Token (JWT)",
-        "description": "Jwt Auth: Authenticated requests contain a valid Json Web Token (JWT) as part of the `Authorization: Bearer <JWT>` header."
       }
     }
   },

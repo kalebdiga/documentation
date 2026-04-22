@@ -75,11 +75,7 @@
     "href": "/"
   },
   "api": {
-    "mdx": {
-      "auth": {
-        "method": "bearer"
-      }
-    }
+    "mdx": {}
   },
 
   "thumbnails": {
