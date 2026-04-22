@@ -38,9 +38,7 @@
                       "api-reference/endpoint/get-institutions",
                       "api-reference/endpoint/initiate-payment",
                       "api-reference/endpoint/account-lookup",
-                      "api-reference/endpoint/verify-otp-payment",
-                      "api-reference/test-numbers",
-                      "api-reference/sign"
+                      "api-reference/endpoint/verify-otp-payment"
                     ]
                   }
                 ]

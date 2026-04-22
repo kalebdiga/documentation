@@ -1,40 +1,43 @@
 ---
 title: "Introduction"
-description: "A comprehensive guide to integrating and operating the Star-Pay payment gateway within your systems."
+description: "Integrate your ERP software with Star-Pay payment gateway endpoints."
 ---
 
-## Welcome
+## Star-Pay ERP API overview
 
-Welcome to the Star-Pay API Documentation — your comprehensive guide to integrating and operating the Star-Pay payment gateway within your systems.
+This API reference helps you integrate your ERP software with the Star-Pay gateway.
+You can use these endpoints to fetch institutions, validate customer accounts, initiate payment, and verify OTP-based payment flows.
 
-Star-Pay is a secure, scalable, API-first payment gateway designed to simplify digital transaction processing for modern applications. Our platform enables fast, reliable, and traceable payment experiences with built-in role-based authorization for accountability and operational efficiency.
+## Available ERP endpoints
 
-Whether you're building customer-facing checkout systems, recurring billing solutions, or real-time payment verification features, Star-Pay provides the flexibility and security your team needs.
+- `GET /erp/get-institutions`  
+  Get the list of supported institutions and payment capabilities.
+- `POST /erp/account-lookup`  
+  Validate account details and get a message ID for OTP payment flows.
+- `POST /erp/initiate-payment`  
+  Create a payment request for methods such as USSD push, OTP, card, QR, and more.
+- `POST /erp/verify-otp-payment`  
+  Complete OTP account payment using OTP code, account number, and bill reference.
 
-## Who This Guide Is For
+## Authentication headers
 
-This documentation is intended for:
+All ERP endpoints require the `x-api-secret` header.
+For OTP verification flow, you also pass `x-message-id` where required.
 
-- Developers integrating payment functionality
-- Technical teams working on system integrations
-- Product engineers implementing secure payment workflows
+## Typical ERP integration flow
 
-## Authentication
+1. Fetch institutions using `GET /erp/get-institutions`.
+2. Run account validation using `POST /erp/account-lookup`.
+3. Initiate payment using `POST /erp/initiate-payment`.
+4. If payment type is OTP, verify payment using `POST /erp/verify-otp-payment`.
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
-
-```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
-```
+This flow gives you one GET endpoint and three POST endpoints to support ERP checkout and collection use cases.
 
 <Card
-  title="Star-Pay API Reference"
+  title="OpenAPI Specification"
   icon="credit-card"
   href="/api-reference/openapi"
 >
-  Explore the full Star-Pay API specification and available endpoints.
+  Access the full API contract with detailed endpoints, parameters, and
+  request/response structures for StarPay ERP integration.
 </Card>
