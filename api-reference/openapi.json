@@ -77,22 +77,24 @@
       },
       "CreateTeamRequest": {
         "type": "object",
-        "required": ["name", "footballType", "ageGroup"],
+        "required": [
+          "name",
+          "footballType",
+          "ageGroup"
+        ],
         "properties": {
           "name": {
             "type": "string",
             "example": "Falcons U14"
           },
           "footballType": {
-            "type": "string",
-            "example": "FLAG"
+            "$ref": "#/components/schemas/FootballType"
           },
           "ageGroup": {
-            "type": "string",
-            "example": "14U"
+            "$ref": "#/components/schemas/AgeGroup"
           },
           "gender": {
-            "type": "string"
+            "$ref": "#/components/schemas/TeamPlayersGender"
           },
           "season": {
             "type": "string",
@@ -113,9 +115,9 @@
         },
         "example": {
           "name": "Falcons U14",
-          "footballType": "FLAG",
-          "ageGroup": "14U",
-          "gender": "MALE",
+          "footballType": "flag",
+          "ageGroup": "14u",
+          "gender": "male",
           "season": "66f0a1b2c3d4e5f678901789"
         }
       },
@@ -126,13 +128,13 @@
             "type": "string"
           },
           "footballType": {
-            "type": "string"
+            "$ref": "#/components/schemas/FootballType"
           },
           "ageGroup": {
-            "type": "string"
+            "$ref": "#/components/schemas/AgeGroup"
           },
           "gender": {
-            "type": "string"
+            "$ref": "#/components/schemas/TeamPlayersGender"
           },
           "season": {
             "type": "string",
@@ -158,9 +160,9 @@
           "data": {
             "_id": "66f0a1b2c3d4e5f678901234",
             "name": "Falcons U14",
-            "footballType": "FLAG",
-            "ageGroup": "14U",
-            "gender": "MALE",
+            "footballType": "flag",
+            "ageGroup": "14u",
+            "gender": "male",
             "isArchived": false,
             "logoUrl": "https://cdn.example.com/logos/falcons.png",
             "organizationId": "66f0a1b2c3d4e5f678901111",
@@ -174,9 +176,9 @@
             "example": {
               "_id": "66f0a1b2c3d4e5f678901234",
               "name": "Falcons U14",
-              "footballType": "FLAG",
-              "ageGroup": "14U",
-              "gender": "MALE",
+              "footballType": "flag",
+              "ageGroup": "14u",
+              "gender": "male",
               "isArchived": false,
               "logoUrl": "https://cdn.example.com/logos/falcons.png",
               "organizationId": "66f0a1b2c3d4e5f678901111",
@@ -193,9 +195,9 @@
             {
               "_id": "66f0a1b2c3d4e5f678901234",
               "name": "Falcons U14",
-              "footballType": "FLAG",
-              "ageGroup": "14U",
-              "gender": "MALE",
+              "footballType": "flag",
+              "ageGroup": "14u",
+              "gender": "male",
               "isArchived": false,
               "logoUrl": "https://cdn.example.com/logos/falcons.png",
               "organizationId": "66f0a1b2c3d4e5f678901111",
@@ -214,9 +216,9 @@
               {
                 "_id": "66f0a1b2c3d4e5f678901234",
                 "name": "Falcons U14",
-                "footballType": "FLAG",
-                "ageGroup": "14U",
-                "gender": "MALE",
+                "footballType": "flag",
+                "ageGroup": "14u",
+                "gender": "male",
                 "isArchived": false,
                 "logoUrl": "https://cdn.example.com/logos/falcons.png",
                 "organizationId": "66f0a1b2c3d4e5f678901111",
@@ -232,7 +234,9 @@
       },
       "CreatePlayerRequest": {
         "type": "object",
-        "required": ["name"],
+        "required": [
+          "name"
+        ],
         "properties": {
           "name": {
             "type": "string",
@@ -247,14 +251,18 @@
             "items": {
               "type": "string"
             },
-            "example": ["QUARTERBACK"]
+            "example": [
+              "QUARTERBACK"
+            ]
           }
         },
         "additionalProperties": true,
         "example": {
           "name": "Alex Johnson",
           "email": "alex@example.com",
-          "position": ["QUARTERBACK"],
+          "position": [
+            "QUARTERBACK"
+          ],
           "jerseyNumber": "10"
         }
       },
@@ -275,7 +283,9 @@
               "_id": "66f0a1b2c3d4e5f678901345",
               "name": "Alex Johnson",
               "email": "alex@example.com",
-              "position": ["QUARTERBACK"],
+              "position": [
+                "QUARTERBACK"
+              ],
               "jerseyNumber": "10",
               "profilePicture": "https://cdn.example.com/players/alex.jpg"
             }
@@ -293,7 +303,9 @@
                 "_id": "66f0a1b2c3d4e5f678901345",
                 "name": "Alex Johnson",
                 "email": "alex@example.com",
-                "position": ["QUARTERBACK"],
+                "position": [
+                  "QUARTERBACK"
+                ],
                 "jerseyNumber": "10",
                 "profilePicture": "https://cdn.example.com/players/alex.jpg"
               }
@@ -313,7 +325,9 @@
             "_id": "66f0a1b2c3d4e5f678901345",
             "name": "Alex Johnson",
             "email": "alex@example.com",
-            "position": ["QUARTERBACK"],
+            "position": [
+              "QUARTERBACK"
+            ],
             "jerseyNumber": "10",
             "profilePicture": "https://cdn.example.com/players/alex.jpg"
           }
@@ -326,7 +340,9 @@
               "_id": "66f0a1b2c3d4e5f678901345",
               "name": "Alex Johnson",
               "email": "alex@example.com",
-              "position": ["QUARTERBACK"],
+              "position": [
+                "QUARTERBACK"
+              ],
               "jerseyNumber": "10",
               "profilePicture": "https://cdn.example.com/players/alex.jpg"
             }
@@ -335,7 +351,10 @@
       },
       "CreateScheduleRequest": {
         "type": "object",
-        "required": ["eventType", "startDate"],
+        "required": [
+          "eventType",
+          "startDate"
+        ],
         "properties": {
           "eventType": {
             "type": "string",
@@ -449,7 +468,11 @@
       },
       "SeasonItem": {
         "type": "object",
-        "required": ["_id", "year", "season"],
+        "required": [
+          "_id",
+          "year",
+          "season"
+        ],
         "properties": {
           "_id": {
             "type": "string",
@@ -461,7 +484,12 @@
           },
           "season": {
             "type": "string",
-            "enum": ["spring", "summer", "fall", "winter"],
+            "enum": [
+              "spring",
+              "summer",
+              "fall",
+              "winter"
+            ],
             "example": "fall"
           }
         },
@@ -490,6 +518,56 @@
             }
           ]
         }
+      },
+      "AgeGroup": {
+        "type": "string",
+        "description": "Team age group",
+        "enum": [
+          "6u",
+          "7u",
+          "8u",
+          "9u",
+          "10u",
+          "11u",
+          "12u",
+          "13u",
+          "14u",
+          "15u",
+          "16u",
+          "17u",
+          "18u",
+          "jv",
+          "varsity",
+          "college_club",
+          "college_naia",
+          "college_ncaa_d3",
+          "college_ncaa_d2",
+          "college_ncaa_d1",
+          "14_elite",
+          "professional",
+          "adult_recreation"
+        ],
+        "example": "14u"
+      },
+      "FootballType": {
+        "type": "string",
+        "description": "Type of football",
+        "enum": [
+          "flag",
+          "tackle"
+        ],
+        "example": "flag"
+      },
+      "TeamPlayersGender": {
+        "type": "string",
+        "description": "Team players gender",
+        "enum": [
+          "male",
+          "female",
+          "co_educational",
+          "other"
+        ],
+        "example": "male"
       }
     },
     "responses": {
@@ -544,7 +622,9 @@
     "/v1/blitz-api/teams": {
       "get": {
         "operationId": "listTeams",
-        "tags": ["Teams"],
+        "tags": [
+          "Teams"
+        ],
         "summary": "List teams",
         "description": "List teams for the organization bound to the API key. organizationId is injected from the key.",
         "parameters": [
@@ -593,9 +673,9 @@
                         {
                           "_id": "66f0a1b2c3d4e5f678901234",
                           "name": "Falcons U14",
-                          "footballType": "FLAG",
-                          "ageGroup": "14U",
-                          "gender": "MALE",
+                          "footballType": "flag",
+                          "ageGroup": "14u",
+                          "gender": "male",
                           "isArchived": false,
                           "logoUrl": "https://cdn.example.com/logos/falcons.png",
                           "organizationId": "66f0a1b2c3d4e5f678901111",
@@ -619,7 +699,9 @@
       },
       "post": {
         "operationId": "createTeam",
-        "tags": ["Teams"],
+        "tags": [
+          "Teams"
+        ],
         "summary": "Create team",
         "description": "Create a team in the API key organization. Do not send organizationId in the body.",
         "requestBody": {
@@ -634,9 +716,9 @@
                   "summary": "Request body",
                   "value": {
                     "name": "Falcons U14",
-                    "footballType": "FLAG",
-                    "ageGroup": "14U",
-                    "gender": "MALE"
+                    "footballType": "flag",
+                    "ageGroup": "14u",
+                    "gender": "male"
                   }
                 }
               }
@@ -658,9 +740,9 @@
                       "data": {
                         "_id": "66f0a1b2c3d4e5f678901234",
                         "name": "Falcons U14",
-                        "footballType": "FLAG",
-                        "ageGroup": "14U",
-                        "gender": "MALE",
+                        "footballType": "flag",
+                        "ageGroup": "14u",
+                        "gender": "male",
                         "isArchived": false,
                         "logoUrl": "https://cdn.example.com/logos/falcons.png",
                         "organizationId": "66f0a1b2c3d4e5f678901111",
@@ -687,7 +769,9 @@
     "/v1/blitz-api/teams/{teamId}": {
       "get": {
         "operationId": "getTeam",
-        "tags": ["Teams"],
+        "tags": [
+          "Teams"
+        ],
         "summary": "Get team",
         "parameters": [
           {
@@ -715,9 +799,9 @@
                       "data": {
                         "_id": "66f0a1b2c3d4e5f678901234",
                         "name": "Falcons U14",
-                        "footballType": "FLAG",
-                        "ageGroup": "14U",
-                        "gender": "MALE",
+                        "footballType": "flag",
+                        "ageGroup": "14u",
+                        "gender": "male",
                         "isArchived": false,
                         "logoUrl": "https://cdn.example.com/logos/falcons.png",
                         "organizationId": "66f0a1b2c3d4e5f678901111",
@@ -742,7 +826,9 @@
       },
       "patch": {
         "operationId": "updateTeam",
-        "tags": ["Teams"],
+        "tags": [
+          "Teams"
+        ],
         "summary": "Update team",
         "parameters": [
           {
@@ -788,9 +874,9 @@
                       "data": {
                         "_id": "66f0a1b2c3d4e5f678901234",
                         "name": "Falcons U14 Elite",
-                        "footballType": "FLAG",
-                        "ageGroup": "14U",
-                        "gender": "MALE",
+                        "footballType": "flag",
+                        "ageGroup": "14u",
+                        "gender": "male",
                         "isArchived": false,
                         "logoUrl": "https://cdn.example.com/logos/falcons.png",
                         "organizationId": "66f0a1b2c3d4e5f678901111",
@@ -818,7 +904,9 @@
       },
       "delete": {
         "operationId": "deleteTeam",
-        "tags": ["Teams"],
+        "tags": [
+          "Teams"
+        ],
         "summary": "Delete team",
         "parameters": [
           {
@@ -865,7 +953,9 @@
     "/v1/blitz-api/teams/{teamId}/players": {
       "get": {
         "operationId": "listPlayers",
-        "tags": ["Players"],
+        "tags": [
+          "Players"
+        ],
         "summary": "List players",
         "parameters": [
           {
@@ -915,7 +1005,9 @@
                           "_id": "66f0a1b2c3d4e5f678901345",
                           "name": "Alex Johnson",
                           "email": "alex@example.com",
-                          "position": ["QUARTERBACK"],
+                          "position": [
+                            "QUARTERBACK"
+                          ],
                           "jerseyNumber": "10",
                           "profilePicture": "https://cdn.example.com/players/alex.jpg"
                         }
@@ -937,9 +1029,11 @@
       },
       "post": {
         "operationId": "createPlayer",
-        "tags": ["Players"],
+        "tags": [
+          "Players"
+        ],
         "summary": "Create player",
-        "description": "Create a single player. Requires header idem-key (or Idempotency-Key): a client-generated unique string for this create intent. Reusing a key that already created a player returns 409 Conflict and does not create a duplicate. Generate a new key for every new player. See Concepts → Idempotency key.",
+        "description": "Create a single player. Requires header idem-key (or Idempotency-Key): a client-generated unique string for this create intent. Reusing a key that already created a player returns 409 Conflict and does not create a duplicate. Generate a new key for every new player. See Concepts \u2192 Idempotency key.",
         "parameters": [
           {
             "name": "teamId",
@@ -954,7 +1048,7 @@
             "name": "idem-key",
             "in": "header",
             "required": true,
-            "description": "Client-generated unique string for this create intent (UUID recommended). Also accepted as Idempotency-Key. Same key reused after a successful create → 409 Conflict (Idempotency key already used). Missing → 400.",
+            "description": "Client-generated unique string for this create intent (UUID recommended). Also accepted as Idempotency-Key. Same key reused after a successful create \u2192 409 Conflict (Idempotency key already used). Missing \u2192 400.",
             "schema": {
               "type": "string",
               "example": "550e8400-e29b-41d4-a716-446655440000"
@@ -974,7 +1068,9 @@
                   "value": {
                     "name": "Alex Johnson",
                     "email": "alex@example.com",
-                    "position": ["QUARTERBACK"],
+                    "position": [
+                      "QUARTERBACK"
+                    ],
                     "jerseyNumber": "10"
                   }
                 }
@@ -1016,7 +1112,9 @@
     "/v1/blitz-api/teams/{teamId}/players/{playerId}": {
       "get": {
         "operationId": "getPlayer",
-        "tags": ["Players"],
+        "tags": [
+          "Players"
+        ],
         "summary": "Get player",
         "parameters": [
           {
@@ -1054,7 +1152,9 @@
                         "_id": "66f0a1b2c3d4e5f678901345",
                         "name": "Alex Johnson",
                         "email": "alex@example.com",
-                        "position": ["QUARTERBACK"],
+                        "position": [
+                          "QUARTERBACK"
+                        ],
                         "jerseyNumber": "10",
                         "profilePicture": "https://cdn.example.com/players/alex.jpg"
                       }
@@ -1077,7 +1177,9 @@
       },
       "patch": {
         "operationId": "updatePlayer",
-        "tags": ["Players"],
+        "tags": [
+          "Players"
+        ],
         "summary": "Update player",
         "parameters": [
           {
@@ -1134,7 +1236,9 @@
                         "_id": "66f0a1b2c3d4e5f678901345",
                         "name": "Alex J.",
                         "email": "alex@example.com",
-                        "position": ["QUARTERBACK"],
+                        "position": [
+                          "QUARTERBACK"
+                        ],
                         "jerseyNumber": "12",
                         "profilePicture": "https://cdn.example.com/players/alex.jpg"
                       }
@@ -1160,7 +1264,9 @@
       },
       "delete": {
         "operationId": "deletePlayer",
-        "tags": ["Players"],
+        "tags": [
+          "Players"
+        ],
         "summary": "Delete player",
         "parameters": [
           {
@@ -1216,7 +1322,9 @@
     "/v1/blitz-api/teams/{teamId}/schedules": {
       "get": {
         "operationId": "listSchedules",
-        "tags": ["Schedules"],
+        "tags": [
+          "Schedules"
+        ],
         "summary": "List schedules",
         "parameters": [
           {
@@ -1299,7 +1407,9 @@
       },
       "post": {
         "operationId": "createSchedule",
-        "tags": ["Schedules"],
+        "tags": [
+          "Schedules"
+        ],
         "summary": "Create schedule",
         "description": "teamId comes from the path, not the body.",
         "parameters": [
@@ -1375,7 +1485,9 @@
     "/v1/blitz-api/seasons": {
       "get": {
         "operationId": "listSeasons",
-        "tags": ["Seasons"],
+        "tags": [
+          "Seasons"
+        ],
         "summary": "List seasons",
         "description": "List available seasons. Use `_id` as `season` when creating a team. Optional filters: year, season name.",
         "parameters": [
@@ -1395,7 +1507,12 @@
             "required": false,
             "schema": {
               "type": "string",
-              "enum": ["spring", "summer", "fall", "winter"],
+              "enum": [
+                "spring",
+                "summer",
+                "fall",
+                "winter"
+              ],
               "example": "fall"
             },
             "description": "Filter by season name"
@@ -1443,7 +1560,9 @@
     "/v1/blitz-api/teams/{teamId}/schedules/{scheduleId}": {
       "get": {
         "operationId": "getSchedule",
-        "tags": ["Schedules"],
+        "tags": [
+          "Schedules"
+        ],
         "summary": "Get schedule detail",
         "description": "Get one schedule by `scheduleId` (the schedule document `_id`) under a team.",
         "parameters": [
@@ -1506,7 +1625,9 @@
       },
       "patch": {
         "operationId": "updateSchedule",
-        "tags": ["Schedules"],
+        "tags": [
+          "Schedules"
+        ],
         "summary": "Update schedule",
         "description": "Update a schedule by `scheduleId` under a team. `teamId` comes from the path.",
         "parameters": [
@@ -1590,7 +1711,9 @@
       },
       "delete": {
         "operationId": "deleteSchedule",
-        "tags": ["Schedules"],
+        "tags": [
+          "Schedules"
+        ],
         "summary": "Delete schedule",
         "description": "Delete a schedule by `scheduleId` under a team.",
         "parameters": [

@@ -2,3 +2,16 @@
 title: "Create team"
 openapi: "/openapi.json POST /v1/blitz-api/teams"
 ---
+
+## `ageGroup` (required)
+
+Choose one of these values in Try it (dropdown) or in your request body:
+
+| Category | Values |
+| --- | --- |
+| Youth | `6u`, `7u`, `8u`, `9u`, `10u`, `11u`, `12u`, `13u`, `14u`, `15u`, `16u`, `17u`, `18u` |
+| High school | `jv`, `varsity` |
+| College | `college_club`, `college_naia`, `college_ncaa_d3`, `college_ncaa_d2`, `college_ncaa_d1` |
+| Other | `14_elite`, `professional`, `adult_recreation` |
+
+Also required: `footballType` (`flag` or `tackle`). Optional: `gender` (`male`, `female`, `co_educational`, `other`).
