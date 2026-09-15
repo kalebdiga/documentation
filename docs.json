@@ -7,7 +7,7 @@
     "light": "#14B8A6",
     "dark": "#0F766E"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.png",
   "icons": {
     "library": "lucide"
   },
@@ -67,8 +67,8 @@
     ]
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg",
+    "light": "/logo/blitzboard.png",
+    "dark": "/logo/blitzboard.png",
     "href": "/"
   },
   "api": {
