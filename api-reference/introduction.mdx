@@ -23,7 +23,7 @@ Create a key from [Organizations](https://live.blitzboardstats.com/organizations
 1. List seasons with `GET /v1/blitz-api/seasons` and use a season `_id` when creating a team.
 2. List or create teams with `GET/POST /v1/blitz-api/teams`.
 3. Manage players under `/v1/blitz-api/teams/{teamId}/players` (create requires [`idem-key`](/concepts#idempotency-key-idem-key)).
-4. Manage schedules under `/v1/blitz-api/teams/{teamId}/schedules` (list/create) and `/v1/blitz-api/teams/{teamId}/schedules/{scheduleId}` (detail/update/delete).
+4. Manage schedules with `GET /v1/blitz-api/schedules?filter=live|upcoming`, `POST /v1/blitz-api/schedules` (`teamId` in body), and `/v1/blitz-api/schedules/{scheduleId}` (detail/update/delete).
 
 <Card title="OpenAPI Specification" icon="code">
   The contract lives at `api-reference/openapi.json`. Endpoint pages below are generated from that file via the `openapi:` frontmatter pattern.

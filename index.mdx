@@ -51,7 +51,9 @@ sequenceDiagram
   App->>API: GET /v1/blitz-api/seasons
   App->>API: GET /v1/blitz-api/teams
   App->>API: POST /v1/blitz-api/teams/:teamId/players
-  App->>API: POST /v1/blitz-api/teams/:teamId/schedules
+  App->>API: POST /v1/blitz-api/schedules
+  App->>API: GET /v1/blitz-api/schedules?filter=upcoming
+  App->>API: GET /v1/blitz-api/schedules?filter=live
 ```
 
 ## Next steps

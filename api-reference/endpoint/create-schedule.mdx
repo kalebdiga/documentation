@@ -1,4 +1,10 @@
 ---
 title: "Create schedule"
-openapi: "/openapi.json POST /v1/blitz-api/teams/{teamId}/schedules"
+openapi: "/openapi.json POST /v1/blitz-api/schedules"
 ---
+
+Pass **`teamId` in the body** (not the path). The team must belong to the API key organization.
+
+Required body fields for a typical game create: `teamId`, `eventType`, `eventTitle`, `startDate`, `endDate`, `teamTwoName`, `duration`, `matchupFormat`, `teamFormat`, `isTestGame`, `fieldSizeInYard`, `enableYardage`, `isScrimmage`, `allowZeroYardStart`, `overtimeType`, `overtimeDuration`.
+
+Do not send `startTime`, `endTime`, or `isRecurring` — those are UI-only and are not accepted by this API.

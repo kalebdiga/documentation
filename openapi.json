@@ -352,61 +352,307 @@
       "CreateScheduleRequest": {
         "type": "object",
         "required": [
+          "teamId",
           "eventType",
-          "startDate"
+          "eventTitle",
+          "startDate",
+          "endDate",
+          "teamTwoName",
+          "duration",
+          "matchupFormat",
+          "teamFormat",
+          "isTestGame",
+          "fieldSizeInYard",
+          "enableYardage",
+          "isScrimmage",
+          "allowZeroYardStart",
+          "overtimeType",
+          "overtimeDuration"
         ],
         "properties": {
+          "teamId": {
+            "type": "string",
+            "description": "Team that owns this schedule",
+            "example": "6917707a0e8f6ee5171235c2"
+          },
           "eventType": {
             "type": "string",
-            "example": "GAME"
+            "enum": [
+              "game",
+              "practice"
+            ],
+            "example": "game"
           },
           "eventTitle": {
-            "type": "string"
+            "type": "string",
+            "description": "Event title (required for practice; include for games in public API docs)",
+            "example": "Anim iure Nam tempor"
           },
           "startDate": {
             "type": "string",
-            "format": "date",
-            "example": "2026-10-01"
+            "format": "date-time",
+            "example": "2026-09-17T21:00:00.000Z"
           },
           "endDate": {
             "type": "string",
-            "format": "date",
-            "example": "2026-10-01"
+            "format": "date-time",
+            "example": "2026-09-17T21:51:00.000Z"
           },
           "teamTwoName": {
             "type": "string",
-            "example": "Guest Team"
+            "example": "Mona Hurley"
+          },
+          "duration": {
+            "type": "integer",
+            "enum": [
+              20,
+              24,
+              30,
+              40,
+              48,
+              50,
+              60
+            ],
+            "example": 50
+          },
+          "matchupFormat": {
+            "type": "string",
+            "enum": [
+              "halves",
+              "quarters",
+              "runningClock"
+            ],
+            "example": "quarters"
+          },
+          "teamFormat": {
+            "type": "string",
+            "enum": [
+              "4v4",
+              "5v5",
+              "6v6",
+              "7v7",
+              "8v8",
+              "9v9",
+              "11v11"
+            ],
+            "example": "7v7"
+          },
+          "isTestGame": {
+            "type": "boolean",
+            "example": false
+          },
+          "fieldSizeInYard": {
+            "type": "integer",
+            "enum": [
+              30,
+              40,
+              45,
+              50,
+              60,
+              64,
+              70,
+              80,
+              100
+            ],
+            "example": 60
+          },
+          "enableYardage": {
+            "type": "boolean",
+            "example": true
+          },
+          "isScrimmage": {
+            "type": "boolean",
+            "example": true
+          },
+          "allowZeroYardStart": {
+            "type": "boolean",
+            "example": false
+          },
+          "overtimeType": {
+            "type": "string",
+            "enum": [
+              "limited",
+              "unlimited"
+            ],
+            "example": "limited"
+          },
+          "overtimeDuration": {
+            "type": "number",
+            "description": "Required when overtimeType is limited (minutes)",
+            "minimum": 1,
+            "example": 5
+          },
+          "practiceNote": {
+            "type": "string"
+          },
+          "locationName": {
+            "type": "string"
+          },
+          "placeId": {
+            "type": "string"
+          },
+          "tournamentId": {
+            "type": "string"
           }
         },
-        "additionalProperties": true,
         "example": {
-          "eventType": "GAME",
-          "startDate": "2026-10-01",
-          "endDate": "2026-10-01",
-          "teamTwoName": "Guest Team"
+          "eventTitle": "Anim iure Nam tempor",
+          "eventType": "game",
+          "startDate": "2026-09-17T21:00:00.000Z",
+          "endDate": "2026-09-17T21:51:00.000Z",
+          "teamTwoName": "Mona Hurley",
+          "duration": 50,
+          "matchupFormat": "quarters",
+          "teamFormat": "7v7",
+          "isTestGame": false,
+          "fieldSizeInYard": 60,
+          "enableYardage": true,
+          "isScrimmage": true,
+          "allowZeroYardStart": false,
+          "overtimeType": "limited",
+          "overtimeDuration": 5,
+          "teamId": "6917707a0e8f6ee5171235c2"
         }
       },
       "UpdateScheduleRequest": {
         "type": "object",
+        "required": [
+          "teamId"
+        ],
         "properties": {
-          "eventType": {
-            "type": "string"
+          "teamId": {
+            "type": "string",
+            "description": "Team that owns the schedule (required)",
+            "example": "6917707a0e8f6ee5171235c2"
           },
           "eventTitle": {
-            "type": "string"
+            "type": "string",
+            "example": "anim iure nam tempor"
+          },
+          "eventType": {
+            "type": "string",
+            "enum": [
+              "game",
+              "practice"
+            ],
+            "example": "game"
           },
           "startDate": {
             "type": "string",
-            "format": "date"
+            "format": "date-time",
+            "example": "2026-09-17T21:00:00.000Z"
           },
           "endDate": {
             "type": "string",
-            "format": "date"
+            "format": "date-time",
+            "example": "2026-09-17T21:51:00.000Z"
+          },
+          "teamTwoName": {
+            "type": "string",
+            "example": "mona hurley"
+          },
+          "duration": {
+            "type": "integer",
+            "enum": [
+              20,
+              24,
+              30,
+              40,
+              48,
+              50,
+              60
+            ],
+            "example": 50
+          },
+          "matchupFormat": {
+            "type": "string",
+            "enum": [
+              "halves",
+              "quarters",
+              "runningClock"
+            ],
+            "example": "quarters"
+          },
+          "teamFormat": {
+            "type": "string",
+            "enum": [
+              "4v4",
+              "5v5",
+              "6v6",
+              "7v7",
+              "8v8",
+              "9v9",
+              "11v11"
+            ],
+            "example": "7v7"
+          },
+          "practiceNote": {
+            "type": "string",
+            "example": "n,mn,mn"
+          },
+          "isTestGame": {
+            "type": "boolean",
+            "example": false
+          },
+          "fieldSizeInYard": {
+            "type": "integer",
+            "enum": [
+              30,
+              40,
+              45,
+              50,
+              60,
+              64,
+              70,
+              80,
+              100
+            ],
+            "example": 60
+          },
+          "enableYardage": {
+            "type": "boolean",
+            "example": true
+          },
+          "isScrimmage": {
+            "type": "boolean",
+            "example": true
+          },
+          "allowZeroYardStart": {
+            "type": "boolean",
+            "example": false
+          },
+          "overtimeType": {
+            "type": "string",
+            "enum": [
+              "limited",
+              "unlimited"
+            ],
+            "example": "limited"
+          },
+          "overtimeDuration": {
+            "type": "number",
+            "minimum": 1,
+            "example": 5
           }
         },
-        "additionalProperties": true,
         "example": {
-          "eventTitle": "Rescheduled kickoff"
+          "eventTitle": "anim iure nam tempor",
+          "eventType": "game",
+          "startDate": "2026-09-17T21:00:00.000Z",
+          "endDate": "2026-09-17T21:51:00.000Z",
+          "teamTwoName": "mona hurley",
+          "duration": 50,
+          "matchupFormat": "quarters",
+          "teamFormat": "7v7",
+          "practiceNote": "n,mn,mn",
+          "isTestGame": false,
+          "fieldSizeInYard": 60,
+          "enableYardage": true,
+          "isScrimmage": true,
+          "allowZeroYardStart": false,
+          "overtimeType": "limited",
+          "overtimeDuration": 5,
+          "teamId": "6917707a0e8f6ee5171235c2"
         }
       },
       "ScheduleResponse": {
@@ -1319,169 +1565,6 @@
         }
       }
     },
-    "/v1/blitz-api/teams/{teamId}/schedules": {
-      "get": {
-        "operationId": "listSchedules",
-        "tags": [
-          "Schedules"
-        ],
-        "summary": "List schedules",
-        "parameters": [
-          {
-            "name": "teamId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "507f1f77bcf86cd799439011"
-            }
-          },
-          {
-            "name": "pageNo",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "default": 1
-            }
-          },
-          {
-            "name": "size",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "integer",
-              "minimum": 1,
-              "default": 10
-            }
-          },
-          {
-            "name": "scheduleTimeline",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Schedules listed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/SchedulesListResponse"
-                },
-                "examples": {
-                  "success": {
-                    "summary": "Successful response",
-                    "value": {
-                      "data": [
-                        {
-                          "_id": "66f0a1b2c3d4e5f678901456",
-                          "eventType": "GAME",
-                          "eventTitle": "Falcons vs Guest Team",
-                          "startDate": "2026-10-01",
-                          "endDate": "2026-10-01",
-                          "teamId": "66f0a1b2c3d4e5f678901234",
-                          "teamTwoName": "Guest Team",
-                          "createdAt": "2026-09-13T18:00:00.000Z"
-                        }
-                      ],
-                      "total": 1
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          }
-        },
-        "description": "List schedules for a team. Each item `_id` is the `scheduleId` used for detail/update/delete."
-      },
-      "post": {
-        "operationId": "createSchedule",
-        "tags": [
-          "Schedules"
-        ],
-        "summary": "Create schedule",
-        "description": "teamId comes from the path, not the body.",
-        "parameters": [
-          {
-            "name": "teamId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "507f1f77bcf86cd799439011"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateScheduleRequest"
-              },
-              "examples": {
-                "default": {
-                  "summary": "Request body",
-                  "value": {
-                    "eventType": "GAME",
-                    "startDate": "2026-10-01",
-                    "endDate": "2026-10-01",
-                    "teamTwoName": "Guest Team"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Schedule created",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ScheduleResponse"
-                },
-                "examples": {
-                  "success": {
-                    "summary": "Successful response",
-                    "value": {
-                      "_id": "66f0a1b2c3d4e5f678901456",
-                      "eventType": "GAME",
-                      "eventTitle": "Falcons vs Guest Team",
-                      "startDate": "2026-10-01",
-                      "endDate": "2026-10-01",
-                      "teamId": "66f0a1b2c3d4e5f678901234",
-                      "teamTwoName": "Guest Team",
-                      "createdAt": "2026-09-13T18:00:00.000Z"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "$ref": "#/components/responses/BadRequest"
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "403": {
-            "$ref": "#/components/responses/Forbidden"
-          }
-        }
-      }
-    },
     "/v1/blitz-api/seasons": {
       "get": {
         "operationId": "listSeasons",
@@ -1557,29 +1640,204 @@
         }
       }
     },
-    "/v1/blitz-api/teams/{teamId}/schedules/{scheduleId}": {
+    "/v1/blitz-api/schedules": {
+      "get": {
+        "operationId": "listSchedules",
+        "tags": [
+          "Schedules"
+        ],
+        "summary": "List schedules",
+        "description": "List schedules across the API key owner's teams in the key organization.\n\nQuery `filter`:\n- `upcoming` (default) \u2014 future schedules that are not live\n- `live` \u2014 in-progress schedules\n\nExamples: `GET /v1/blitz-api/schedules?filter=upcoming` \u00b7 `GET /v1/blitz-api/schedules?filter=live`",
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "required": false,
+            "description": "upcoming (default) = future not live; live = in progress",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "live",
+                "upcoming"
+              ],
+              "default": "upcoming",
+              "example": "upcoming"
+            }
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "example": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10,
+              "example": 10
+            }
+          },
+          {
+            "name": "searchTerm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search by event title or team name"
+          },
+          {
+            "name": "tournamentId",
+            "in": "query",
+            "required": false,
+            "description": "Filter by tournament id. Repeat for multiple values.",
+            "schema": {
+              "type": "string",
+              "example": "507f1f77bcf86cd799439011"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Schedules listed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SchedulesListResponse"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Successful response",
+                    "value": {
+                      "data": [
+                        {
+                          "_id": "66f0a1b2c3d4e5f678901456",
+                          "eventType": "game",
+                          "eventTitle": "Falcons vs Guest Team",
+                          "startDate": "2026-10-01",
+                          "endDate": "2026-10-01",
+                          "teamOneId": "66f0a1b2c3d4e5f678901234",
+                          "teamTwoName": "Guest Team",
+                          "isActive": false,
+                          "createdAt": "2026-09-13T18:00:00.000Z"
+                        }
+                      ],
+                      "total": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createSchedule",
+        "tags": [
+          "Schedules"
+        ],
+        "summary": "Create schedule",
+        "description": "Create a schedule. Pass `teamId` in the body (not the path).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateScheduleRequest"
+              },
+              "examples": {
+                "default": {
+                  "summary": "Create game schedule",
+                  "value": {
+                    "eventTitle": "Anim iure Nam tempor",
+                    "eventType": "game",
+                    "startDate": "2026-09-17T21:00:00.000Z",
+                    "endDate": "2026-09-17T21:51:00.000Z",
+                    "teamTwoName": "Mona Hurley",
+                    "duration": 50,
+                    "matchupFormat": "quarters",
+                    "teamFormat": "7v7",
+                    "isTestGame": false,
+                    "fieldSizeInYard": 60,
+                    "enableYardage": true,
+                    "isScrimmage": true,
+                    "allowZeroYardStart": false,
+                    "overtimeType": "limited",
+                    "overtimeDuration": 5,
+                    "teamId": "6917707a0e8f6ee5171235c2"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Schedule created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScheduleResponse"
+                },
+                "examples": {
+                  "success": {
+                    "summary": "Successful response",
+                    "value": {
+                      "_id": "66f0a1b2c3d4e5f678901456",
+                      "eventType": "game",
+                      "eventTitle": "Falcons vs Guest Team",
+                      "startDate": "2026-10-01",
+                      "endDate": "2026-10-01",
+                      "teamOneId": "66f0a1b2c3d4e5f678901234",
+                      "teamTwoName": "Guest Team",
+                      "createdAt": "2026-09-13T18:00:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        }
+      }
+    },
+    "/v1/blitz-api/schedules/{scheduleId}": {
       "get": {
         "operationId": "getSchedule",
         "tags": [
           "Schedules"
         ],
         "summary": "Get schedule detail",
-        "description": "Get one schedule by `scheduleId` (the schedule document `_id`) under a team.",
+        "description": "Get one schedule by scheduleId. No teamId required; the schedule must belong to a team in the API key organization.",
         "parameters": [
-          {
-            "name": "teamId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "507f1f77bcf86cd799439011"
-            }
-          },
           {
             "name": "scheduleId",
             "in": "path",
             "required": true,
-            "description": "Schedule document Mongo id (from create or list). This is the schedule detail id.",
+            "description": "Schedule document Mongo `_id` from create or list.",
             "schema": {
               "type": "string",
               "example": "507f1f77bcf86cd799439012"
@@ -1599,11 +1857,11 @@
                     "summary": "Successful response",
                     "value": {
                       "_id": "66f0a1b2c3d4e5f678901456",
-                      "eventType": "GAME",
+                      "eventType": "game",
                       "eventTitle": "Falcons vs Guest Team",
                       "startDate": "2026-10-01",
                       "endDate": "2026-10-01",
-                      "teamId": "66f0a1b2c3d4e5f678901234",
+                      "teamOneId": "66f0a1b2c3d4e5f678901234",
                       "teamTwoName": "Guest Team",
                       "createdAt": "2026-09-13T18:00:00.000Z"
                     }
@@ -1629,22 +1887,13 @@
           "Schedules"
         ],
         "summary": "Update schedule",
-        "description": "Update a schedule by `scheduleId` under a team. `teamId` comes from the path.",
+        "description": "Update a schedule by scheduleId. Pass teamId in the request body.",
         "parameters": [
-          {
-            "name": "teamId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "507f1f77bcf86cd799439011"
-            }
-          },
           {
             "name": "scheduleId",
             "in": "path",
             "required": true,
-            "description": "Schedule document Mongo id (from create or list). This is the schedule detail id.",
+            "description": "Schedule document Mongo `_id` from create or list.",
             "schema": {
               "type": "string",
               "example": "507f1f77bcf86cd799439012"
@@ -1660,9 +1909,25 @@
               },
               "examples": {
                 "default": {
-                  "summary": "Request body",
+                  "summary": "Update schedule",
                   "value": {
-                    "eventTitle": "Rescheduled kickoff"
+                    "eventTitle": "anim iure nam tempor",
+                    "eventType": "game",
+                    "startDate": "2026-09-17T21:00:00.000Z",
+                    "endDate": "2026-09-17T21:51:00.000Z",
+                    "teamTwoName": "mona hurley",
+                    "duration": 50,
+                    "matchupFormat": "quarters",
+                    "teamFormat": "7v7",
+                    "practiceNote": "n,mn,mn",
+                    "isTestGame": false,
+                    "fieldSizeInYard": 60,
+                    "enableYardage": true,
+                    "isScrimmage": true,
+                    "allowZeroYardStart": false,
+                    "overtimeType": "limited",
+                    "overtimeDuration": 5,
+                    "teamId": "6917707a0e8f6ee5171235c2"
                   }
                 }
               }
@@ -1682,11 +1947,11 @@
                     "summary": "Successful response",
                     "value": {
                       "_id": "66f0a1b2c3d4e5f678901456",
-                      "eventType": "GAME",
-                      "eventTitle": "Rescheduled kickoff",
+                      "eventType": "game",
+                      "eventTitle": "Falcons vs Guest Team",
                       "startDate": "2026-10-01",
                       "endDate": "2026-10-01",
-                      "teamId": "66f0a1b2c3d4e5f678901234",
+                      "teamOneId": "66f0a1b2c3d4e5f678901234",
                       "teamTwoName": "Guest Team",
                       "createdAt": "2026-09-13T18:00:00.000Z"
                     }
@@ -1715,25 +1980,26 @@
           "Schedules"
         ],
         "summary": "Delete schedule",
-        "description": "Delete a schedule by `scheduleId` under a team.",
+        "description": "Soft-delete a schedule by scheduleId. Pass teamId as a query parameter.",
         "parameters": [
-          {
-            "name": "teamId",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "507f1f77bcf86cd799439011"
-            }
-          },
           {
             "name": "scheduleId",
             "in": "path",
             "required": true,
-            "description": "Schedule document Mongo id (from create or list). This is the schedule detail id.",
+            "description": "Schedule document Mongo `_id` from create or list.",
             "schema": {
               "type": "string",
               "example": "507f1f77bcf86cd799439012"
+            }
+          },
+          {
+            "name": "teamId",
+            "in": "query",
+            "required": true,
+            "description": "Team that owns the schedule",
+            "schema": {
+              "type": "string",
+              "example": "66f0a1b2c3d4e5f678901234"
             }
           }
         ],
@@ -1749,7 +2015,7 @@
                   "success": {
                     "summary": "Successful response",
                     "value": {
-                      "message": "schedule deleted successfully!"
+                      "message": "Schedule deleted successfully!"
                     }
                   }
                 }

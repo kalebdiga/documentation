@@ -1,4 +1,10 @@
 ---
 title: "Update schedule"
-openapi: "/openapi.json PATCH /v1/blitz-api/teams/{teamId}/schedules/{scheduleId}"
+openapi: "/openapi.json PATCH /v1/blitz-api/schedules/{scheduleId}"
 ---
+
+**`teamId` is required** in the body. Other fields are optional — send only what you want to change.
+
+Supported body fields: `eventTitle`, `eventType`, `startDate`, `endDate`, `teamTwoName`, `duration`, `matchupFormat`, `teamFormat`, `practiceNote`, `isTestGame`, `fieldSizeInYard`, `enableYardage`, `isScrimmage`, `allowZeroYardStart`, `overtimeType`, `overtimeDuration`, `teamId`.
+
+Do not send `startTime`, `endTime`, or `isRecurring` — UI-only, not accepted by this API.
