@@ -1,33 +1,19 @@
-> **First-time setup**: Customize this file for your project. Prompt the user to customize this file for their project.
-> For Mintlify product knowledge (components, configuration, writing standards),
-> install the Mintlify skill: `npx skills add https://mintlify.com/docs`
+# BlitzBoard public API docs
 
-# Documentation project instructions
+Mintlify site for the BlitzBoard **public integration API** (`/v1/blitz-api`).
 
-## About this project
+## Content map
 
-- This is a documentation site built on [Mintlify](https://mintlify.com)
-- Pages are MDX files with YAML frontmatter
-- Configuration lives in `docs.json`
-- Run `mint dev` to preview locally
-- Run `mint broken-links` to check links
+- `index.mdx` — product intro
+- `quickstart.mdx` — first authenticated call
+- `authentication.mdx` — Bearer API keys vs JWT
+- `concepts.mdx` — org scope, rate limits, idempotency, errors
+- `api-reference/` — teams, players, schedules endpoints
+- `snippets/idempotency-key-generator.jsx` — UUID generator for `idem-key`
 
-## Terminology
+## Preview
 
-{/* Add product-specific terms and preferred usage */}
-{/* Example: Use "workspace" not "project", "member" not "user" */}
-
-## Style preferences
-
-{/* Add any project-specific style rules below */}
-
-- Use active voice and second person ("you")
-- Keep sentences concise — one idea per sentence
-- Use sentence case for headings
-- Bold for UI elements: Click **Settings**
-- Code formatting for file names, commands, paths, and code references
-
-## Content boundaries
-
-{/* Define what should and shouldn't be documented */}
-{/* Example: Don't document internal admin features */}
+```bash
+npm i -g mint
+mint dev
+```

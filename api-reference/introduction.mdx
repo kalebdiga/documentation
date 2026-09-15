@@ -1,43 +1,30 @@
 ---
-title: "Introduction"
-description: "Integrate your ERP software with Star-Pay payment gateway endpoints."
+title: "API reference"
+description: "Organization-scoped BlitzBoard public endpoints for seasons, teams, players, and schedules."
 ---
 
-## Star-Pay ERP API overview
+## BlitzBoard Public API overview
 
-This API reference helps you integrate your ERP software with the Star-Pay gateway.
-You can use these endpoints to fetch institutions, validate customer accounts, initiate payment, and verify OTP-based payment flows.
+This API reference is generated from the OpenAPI contract for `/v1/blitz-api`.
+Use it to sync **seasons**, **teams**, **players**, and **schedules** for the organization bound to your API key.
 
-## Available ERP endpoints
+## Authentication
 
-- `GET /erp/get-institutions`  
-  Get the list of supported institutions and payment capabilities.
-- `POST /erp/account-lookup`  
-  Validate account details and get a message ID for OTP payment flows.
-- `POST /erp/initiate-payment`  
-  Create a payment request for methods such as USSD push, OTP, card, QR, and more.
-- `POST /erp/verify-otp-payment`  
-  Complete OTP account payment using OTP code, account number, and bill reference.
+All public endpoints require:
 
-## Authentication headers
+```http
+Authorization: Bearer bb_live_...
+```
 
-All ERP endpoints require the `x-api-secret` header.
-For OTP verification flow, you also pass `x-message-id` where required.
+Create a key from [Organizations](https://live.blitzboardstats.com/organizations) → open an organization → generate key.
 
-## Typical ERP integration flow
+## Typical flow
 
-1. Fetch institutions using `GET /erp/get-institutions`.
-2. Run account validation using `POST /erp/account-lookup`.
-3. Initiate payment using `POST /erp/initiate-payment`.
-4. If payment type is OTP, verify payment using `POST /erp/verify-otp-payment`.
+1. List seasons with `GET /v1/blitz-api/seasons` and use a season `_id` when creating a team.
+2. List or create teams with `GET/POST /v1/blitz-api/teams`.
+3. Manage players under `/v1/blitz-api/teams/{teamId}/players` (create requires [`idem-key`](/concepts#idempotency-key-idem-key)).
+4. Manage schedules under `/v1/blitz-api/teams/{teamId}/schedules` (list/create) and `/v1/blitz-api/teams/{teamId}/schedules/{scheduleId}` (detail/update/delete).
 
-This flow gives you one GET endpoint and three POST endpoints to support ERP checkout and collection use cases.
-
-<Card
-  title="OpenAPI Specification"
-  icon="credit-card"
-  href="/api-reference/openapi"
->
-  Access the full API contract with detailed endpoints, parameters, and
-  request/response structures for StarPay ERP integration.
+<Card title="OpenAPI Specification" icon="code">
+  The contract lives at `api-reference/openapi.json`. Endpoint pages below are generated from that file via the `openapi:` frontmatter pattern.
 </Card>

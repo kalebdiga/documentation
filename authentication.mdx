@@ -1,0 +1,82 @@
+---
+title: "Authentication"
+description: "Use organization-scoped API keys with Authorization: Bearer for the public API."
+---
+
+## Two auth modes
+
+BlitzBoard uses **different credentials** for management vs integration:
+
+| Use case | Credential | Header |
+| --- | --- | --- |
+| Create / list / revoke / rotate keys | Login **JWT** | `Authorization: Bearer <JWT>` |
+| Call `/v1/blitz-api/...` | Integration **API key** | `Authorization: Bearer bb_live_...` |
+
+Public routes only accept keys that start with `bb_live_`. A normal login JWT is rejected on the public API.
+
+Public routes expect:
+
+```bash
+Authorization: Bearer bb_live_<secret>
+```
+
+<Note>
+  This is **not** the same as Stripe’s secret key. Stripe uses its own secrets and webhook signatures. BlitzBoard public auth is only for `/v1/blitz-api`.
+</Note>
+
+## Who can manage keys
+
+Only one of the following for the given `organizationId`:
+
+- Organization **creator**
+- Active organization **admin**
+- **System admin**
+
+## Generate an API key in the app
+
+1. Go to **[https://live.blitzboardstats.com/organizations](https://live.blitzboardstats.com/organizations)**
+2. Open **one of your organizations** (organization detail)
+3. Create an API key for that organization
+
+Copy the full `bb_live_...` value when it is shown — it is only displayed once.
+
+## Manage keys (API)
+
+You can also manage keys with a login JWT against `/api-keys`.
+
+### Create
+
+`POST /api-keys`
+
+```json
+{
+  "name": "Production Integration",
+  "organizationId": "507f1f77bcf86cd799439011"
+}
+```
+
+Response includes `apiKey` once, plus `id`, `keyPrefix`, `organizationId`, and `status`.
+
+### List
+
+`GET /api-keys?organizationId=<orgId>`
+
+### Revoke
+
+`DELETE /api-keys/:id`
+
+### Rotate
+
+`POST /api-keys/:id/rotate`
+
+Returns a new plaintext `apiKey` once; the previous secret stops working.
+
+## Organization scope
+
+Every key is bound to one `organizationId`. On public requests:
+
+1. `ApiKeyGuard` validates the Bearer key and loads user + org context.
+2. Team create/list inject that org automatically.
+3. Routes with `teamId` ensure the team belongs to the key’s organization.
+
+A valid key for Org A cannot read or mutate Org B’s teams, players, or schedules.

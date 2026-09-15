@@ -1,75 +1,72 @@
 ---
 title: "Introduction"
-description: "Get started with Starpay. Learn the core concepts, architecture, and how to integrate our APIs into your system."
-mode: "frame"
-keywords: ["starpay", "introduction", "getting started", "api", "overview"]
+description: "Integrate with BlitzBoard using the organization-scoped public API for teams, players, and schedules."
+keywords: ["blitzboard", "public api", "introduction", "integration"]
 ---
 
-export const HeroCard = ({ title, description, href }) => {
-  return (
-    <a
-      href={href}
-      className="group relative block rounded-2xl p-6 overflow-hidden bg-[gray]/20 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 min-h-[180px]"
-    >
-      <img
-        src="/images/pattern.png"
-        alt="background pattern"
-        className="absolute inset-0 w-full h-full object-cover opacity-30 pointer-events-none"
-      />
+# BlitzBoard Public API
 
-      <div className="relative z-10 flex items-start gap-4">
-        <div>
-          <h3 className="text-3xl font-semibold text-gray-900 dark:text-white">
-            {title}
-          </h3>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-            {description}
-          </p>
-        </div>
-      </div>
-    </a>
+BlitzBoard helps leagues, coaches, and partners manage flag football programs with live game data, player analytics, and team performance. The **public integration API** lets external systems (ERPs, registration platforms, CRMs) create and sync **teams**, **players**, and **schedules** without using the BlitzBoard web UI.
 
-);
-};
+## What you can build
 
-<div className="relative">
-  <div className="absolute top-0 botttom-0 left-0 right-0 opacity-80">
-    <img
-      src="/images/home/Cover-light.png"
-      className="block dark:hidden pointer-events-none w-full h-full"
-      alt="Decorative background image."
-    />
-    <img
-      src="/images/home/Cover-dark.png"
-      className="hidden dark:block pointer-events-none w-full h-full"
-      alt="Decorative background image."
-    />
-  </div>
+<CardGroup cols={2}>
+  <Card title="Sync teams" icon="users" href="/api-reference/endpoint/list-teams">
+    List and manage teams that belong to the organization on your API key.
+  </Card>
+  <Card title="Roster players" icon="user-plus" href="/api-reference/endpoint/create-player">
+    Add and update players on a team with idempotent creates.
+  </Card>
+  <Card title="Schedule events" icon="calendar" href="/api-reference/endpoint/create-schedule">
+    Create games, practices, and other events under a team.
+  </Card>
+  <Card title="Secure by design" icon="shield" href="/authentication">
+    Organization-scoped API keys — one key cannot access another org’s data.
+  </Card>
+</CardGroup>
 
-  <div className=" z-10 pt-[200px] max-w-4xl mx-auto h-screen ">
-    <h1 className="block text-4xl font-medium text-center text-gray-900 dark:text-zinc-50 tracking-tight">
-     Starpay Documentation
-    </h1>
+## Core ideas
 
-    <div className="max-w-xl mx-auto px-4 mt-4 text-lg text-center text-gray-500 dark:text-zinc-500">
-    Comprehensive guides and API references to help you integrate Starpay, manage transactions, and build reliable financial workflows.
-    </div>
+| Concept | Detail |
+| --- | --- |
+| **Base path** | All public routes live under `/v1/blitz-api` |
+| **Auth** | `Authorization: Bearer bb_live_...` (API key, not a login JWT) |
+| **Create a key** | [Organizations](https://live.blitzboardstats.com/organizations) → open an organization → generate key |
+| **Org scope** | The key’s `organizationId` is applied automatically — you do not pass org id on public team list/create |
+| **Rate limit** | 100 requests per minute per public controller |
+| **Request ID** | Responses include a request id for support and tracing |
 
-    <div className="px-6 lg:px-0  grid sm:grid-cols-2 gap-x-6 gap-y-4 mt-[50px]">
+## Typical integration flow
 
-<HeroCard
-  href="/api/introduction"
-  title="Introduction"
-  description="Understand Starpay’s core concepts, system architecture, and how to get started quickly."
-/>
+```mermaid
+sequenceDiagram
+  participant App as Your app
+  participant Admin as BlitzBoard (JWT)
+  participant API as Public API
 
-<HeroCard
-  title="ERP API Integration"
-  description="Learn how to connect your ERP system with Starpay APIs for seamless payment and reconciliation workflows."
-  href="/api/introduction"
-/>
+  Admin->>Admin: Create API key for organization
+  Admin-->>App: bb_live_... (shown once)
+  App->>API: Authorization: Bearer bb_live_...
+  API->>API: Resolve org from key
+  App->>API: GET /v1/blitz-api/seasons
+  App->>API: GET /v1/blitz-api/teams
+  App->>API: POST /v1/blitz-api/teams/:teamId/players
+  App->>API: POST /v1/blitz-api/teams/:teamId/schedules
+```
 
-    </div>
+## Next steps
 
-  </div>
-</div>
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Create a key and make your first authenticated request in minutes.
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    How Bearer API keys work vs login JWTs, create/rotate/revoke.
+  </Card>
+  <Card title="Concepts" icon="book-open" href="/concepts">
+    Org scope, idempotency, errors, and rate limits.
+  </Card>
+  <Card title="API reference" icon="code" href="/api-reference/introduction">
+    Full endpoint list for teams, players, and schedules.
+  </Card>
+</CardGroup>

@@ -1,80 +1,64 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Create an organization API key and call the BlitzBoard public API."
 ---
 
-## Get started in three steps
+Get from zero to a successful `GET /v1/blitz-api/teams` call.
 
-Get your documentation site running locally and make your first customization.
+<Steps>
+  <Step title="Generate an API key">
+    Go to [Organizations](https://live.blitzboardstats.com/organizations), open **one of your organizations**, then create an API key on that organization detail page.
 
-### Step 1: Set up your local environment
+    You must be the organization **creator**, an organization **admin**, or a **system admin**.
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    The full key (`bb_live_...`) is **shown once** — copy and store it securely.
 
-### Step 2: Deploy your changes
+    <Warning>
+      You cannot recover the full key later. If lost, revoke or rotate and issue a new one.
+    </Warning>
+  </Step>
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+  <Step title="Call the public API">
+    Use the API key as a Bearer token on `/v1/blitz-api` routes. Do **not** use a login JWT here.
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+    ```bash
+    curl -X GET 'https://sandbox.blitzboardstats.com/api/v1/blitz-api/teams?skip=0&limit=20' \
+      -H 'Accept: application/json' \
+      -H 'Authorization: Bearer bb_live_...'
+    ```
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+    Teams are returned only for the organization bound to that key.
 
-### Step 3: Go live
+  </Step>
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+  <Step title="Create a team">
+    ```bash
+    curl -X POST 'https://sandbox.blitzboardstats.com/api/v1/blitz-api/teams' \
+      -H 'Authorization: Bearer bb_live_...' \
+      -H 'Content-Type: application/json' \
+      -d '{
+        "name": "Falcons U14",
+        "footballType": "FLAG",
+        "ageGroup": "14U"
+      }'
+    ```
 
-## Next steps
+    `organizationId` is taken from the API key — you do not send it in the body.
 
-Now that you have your docs running, explore these key features:
+  </Step>
+</Steps>
+
+## What’s next
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="Authentication" href="/authentication" icon="key">
+    Key lifecycle, Bearer format, and how JWT vs API key differ.
+  </Card>
+  <Card
+    title="Create a player"
+    href="/api-reference/endpoint/create-player"
+    icon="user-plus"
+  >
+    Add a player with an idempotency key.
+  </Card>
 </CardGroup>
-
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>

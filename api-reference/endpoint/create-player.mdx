@@ -1,0 +1,20 @@
+---
+title: "Create player"
+description: "Create a player on a team. Requires an idem-key header."
+openapi: "/openapi.json POST /v1/blitz-api/teams/{teamId}/players"
+---
+
+import { IdempotencyKeyGenerator } from "/snippets/idempotency-key-generator.jsx";
+
+## `idem-key` (required)
+
+Client-generated unique string for this create. Send it as header `idem-key` (or `Idempotency-Key`).
+
+- **Same key again** → `409 Conflict` (`Idempotency key already used`); no second player is created.
+- **New player** → always generate a new key (UUID recommended).
+
+Use the generator below to create an `idem-key` you can paste into Try it.
+
+<IdempotencyKeyGenerator />
+
+See [Concepts → Idempotency key](/concepts#idempotency-key-idem-key) for the full definition.

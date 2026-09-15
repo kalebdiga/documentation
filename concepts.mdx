@@ -1,0 +1,106 @@
+---
+title: "Concepts"
+description: "Org scope, rate limits, idempotency, errors, and request tracing for the public API."
+---
+
+import { IdempotencyKeyGenerator } from "/snippets/idempotency-key-generator.jsx";
+
+## Base URL and path
+
+| Environment | Example |
+| --- | --- |
+| Sandbox | `https://sandbox.blitzboardstats.com/api` |
+| Public routes | `/v1/blitz-api/...` |
+| Key management | `/api-keys` (JWT only) |
+
+<Note>
+  **Mintlify “Try it”:** playground requests are proxied through Mintlify (`api.playground.proxy: true`) so the browser does not hit sandbox CORS. Swagger at `https://sandbox.blitzboardstats.com/api/docs` calls the API same-origin and does not need that proxy.
+</Note>
+
+## Organization scope
+
+- Keys are **org-scoped**, not “everything the user can see.”
+- `GET/POST /v1/blitz-api/teams` always use the key’s organization.
+- Any `teamId` must belong to that organization or the request is forbidden.
+
+## Rate limiting
+
+Public controllers are throttled at **100 requests / 60 seconds**. Exceeding the limit returns a throttle error; back off and retry.
+
+## Idempotency key (`idem-key`)
+
+An **idempotency key** is a client-generated string that uniquely identifies one create intent. The API stores it on the created player so the same write cannot be applied twice.
+
+### Where it is required
+
+Only **player create**:
+
+```http
+POST /v1/blitz-api/teams/{teamId}/players
+idem-key: 550e8400-e29b-41d4-a716-446655440000
+```
+
+| Header            | Required      | Notes                                                       |
+| ----------------- | ------------- | ----------------------------------------------------------- |
+| `idem-key`        | Preferred     | BlitzBoard header name                                      |
+| `Idempotency-Key` | Also accepted | Same value; use if your HTTP client prefers the common name |
+
+Missing either header → `400` (`idem-key is required in the header`).
+
+### Generate a key
+
+Use the generator below to create an `idem-key` you can paste into Try it or curl.
+
+<IdempotencyKeyGenerator />
+
+### What to send
+
+- Any non-empty string that is **unique per create intent** (UUID recommended).
+- Reuse the **same** key only when retrying the **same** create (network timeout, unclear response).
+- Use a **new** key for every new player.
+
+You can also generate offline:
+
+```bash
+uuidgen
+# or
+node -e "console.log(crypto.randomUUID())"
+```
+
+### What happens on reuse
+
+If a player was already created with that `idem-key`, a second request with the same key returns **`409 Conflict`** (`Idempotency key already used`) and does **not** create another player.
+
+That protects against accidental duplicates. It does **not** replay the original success body — treat `409` as “this create already succeeded; look up the player or use a new key for a different player.”
+
+## Request ID
+
+Public routes attach a request id (middleware) for tracing. Include it when contacting support about a failed call.
+
+## Errors
+
+Errors follow the platform shape, for example:
+
+```json
+{
+  "error": 10014,
+  "message": "organizationId should not be empty",
+  "timestamp": "2026-09-13T14:45:41.317Z",
+  "traceId": "req_41f0e6c8a5ea232a"
+}
+```
+
+Common API-key messages:
+
+| Message                                              | Meaning                                       |
+| ---------------------------------------------------- | --------------------------------------------- |
+| API key is required                                  | Missing `Authorization: Bearer ...`           |
+| Invalid API key                                      | Wrong format, not `bb_live_`, or unknown hash |
+| API key has been revoked                             | Key was revoked                               |
+| API key has expired                                  | Past `expiresAt`                              |
+| Resource is outside the API key organization scope   | Team/org mismatch                             |
+| Not allowed to manage API keys for this organization | JWT user is not creator/admin                 |
+
+## Permissions
+
+After the API key is accepted, team-level role checks still apply for many player and schedule operations (same permission model as the main app). The acting user is the **user who owns the API key**.
