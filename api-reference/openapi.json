@@ -376,13 +376,13 @@
             "type": "string",
             "format": "date-time",
             "description": "When the event starts. You must send this.",
-            "example": "2026-09-17T21:00:00.000Z"
+            "example": "2026-09-26T22:00:00.000Z"
           },
           "endDate": {
             "type": "string",
             "format": "date-time",
             "description": "If you do not provide this field, we set startDate + duration minutes on our side.",
-            "example": "2026-09-17T21:30:00.000Z"
+            "example": "2026-09-26T22:30:00.000Z"
           },
           "teamTwoName": {
             "type": "string",
@@ -493,8 +493,18 @@
         },
         "example": {
           "teamId": "6917707a0e8f6ee5171235c2",
-          "startDate": "2026-09-17T21:00:00.000Z",
-          "teamTwoName": "Long Island University"
+          "startDate": "2026-09-26T22:00:00.000Z",
+          "endDate": "2026-09-26T22:30:00.000Z",
+          "teamTwoName": "Long Island University",
+          "eventType": "game",
+          "duration": 30,
+          "matchupFormat": "halves",
+          "teamFormat": "7v7",
+          "isTestGame": false,
+          "isScrimmage": false,
+          "enableYardage": false,
+          "allowZeroYardStart": false,
+          "overtimeType": "unlimited"
         }
       },
       "UpdateScheduleRequest": {
@@ -1748,26 +1758,26 @@
                   "summary": "Minimal create (we fill format fields on our side)",
                   "value": {
                     "teamId": "6917707a0e8f6ee5171235c2",
-                    "startDate": "2026-09-17T21:00:00.000Z",
+                    "startDate": "2026-09-26T22:00:00.000Z",
                     "teamTwoName": "Long Island University"
                   }
                 },
                 "full": {
-                  "summary": "Create game with your own format values",
+                  "summary": "Full payload (same values we set as defaults)",
                   "value": {
-                    "eventType": "game",
-                    "startDate": "2026-09-17T21:00:00.000Z",
-                    "endDate": "2026-09-17T21:30:00.000Z",
+                    "teamId": "6917707a0e8f6ee5171235c2",
+                    "startDate": "2026-09-26T22:00:00.000Z",
+                    "endDate": "2026-09-26T22:30:00.000Z",
                     "teamTwoName": "Long Island University",
+                    "eventType": "game",
                     "duration": 30,
                     "matchupFormat": "halves",
                     "teamFormat": "7v7",
                     "isTestGame": false,
-                    "enableYardage": false,
                     "isScrimmage": false,
+                    "enableYardage": false,
                     "allowZeroYardStart": false,
-                    "overtimeType": "unlimited",
-                    "teamId": "6917707a0e8f6ee5171235c2"
+                    "overtimeType": "unlimited"
                   }
                 }
               }
