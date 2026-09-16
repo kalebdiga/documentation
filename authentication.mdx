@@ -9,7 +9,7 @@ BlitzBoard uses **different credentials** for management vs integration:
 
 | Use case | Credential | Header |
 | --- | --- | --- |
-| Create / list / revoke / rotate keys | Login **JWT** | `Authorization: Bearer <JWT>` |
+| Create / list / revoke / rotate keys | Blitz **admin** JWT (admin API) | `Authorization: Bearer <admin JWT>` |
 | Call `/v1/blitz-api/...` | Integration **API key** | `Authorization: Bearer bb_live_...` |
 
 Public routes only accept keys that start with `bb_live_`. A normal login JWT is rejected on the public API.
@@ -26,27 +26,11 @@ Authorization: Bearer bb_live_<secret>
 
 ## Who can manage keys
 
-Only one of the following for the given `organizationId`:
+Only a **BlitzBoard super admin** (`isSystemAdmin`) via the **admin backend**. Organization creators and organization admins cannot create or manage API keys.
 
-- Organization **creator**
-- Active organization **admin**
-- **System admin**
+## Generate an API key
 
-## Generate an API key in the app
-
-1. Go to **[https://live.blitzboardstats.com/organizations](https://live.blitzboardstats.com/organizations)**
-2. Open **one of your organizations** (organization detail)
-3. Create an API key for that organization
-
-Copy the full `bb_live_...` value when it is shown — it is only displayed once.
-
-## Manage keys (API)
-
-You can also manage keys with a login JWT against `/api-keys`.
-
-### Create
-
-`POST /api-keys`
+A BlitzBoard super admin issues a key for an organization from the admin side (`POST /api-keys` on the admin API) with:
 
 ```json
 {
@@ -55,7 +39,24 @@ You can also manage keys with a login JWT against `/api-keys`.
 }
 ```
 
-Response includes `apiKey` once, plus `id`, `keyPrefix`, `organizationId`, and `status`.
+Copy the full `bb_live_...` value when it is shown — it is only displayed once.
+
+Audit fields on the key:
+
+| Field | Meaning |
+| --- | --- |
+| `createdBy` | Super admin who created the key |
+| `lastRotatedBy` / `rotatedAt` | Super admin who last rotated the secret (if any) |
+
+## Manage keys (admin API)
+
+Key management lives on the **admin backend**, not the public/main app API.
+
+### Create
+
+`POST /api-keys`
+
+Response includes `apiKey` once, plus `id`, `keyPrefix`, `organizationId`, `createdBy`, and `status`.
 
 ### List
 
@@ -69,13 +70,13 @@ Response includes `apiKey` once, plus `id`, `keyPrefix`, `organizationId`, and `
 
 `POST /api-keys/:id/rotate`
 
-Returns a new plaintext `apiKey` once; the previous secret stops working.
+Returns a new plaintext `apiKey` once; the previous secret stops working. `createdBy` stays the original admin; `lastRotatedBy` / `rotatedAt` record who rotated.
 
 ## Organization scope
 
 Every key is bound to one `organizationId`. On public requests:
 
-1. `ApiKeyGuard` validates the Bearer key and loads user + org context.
+1. `ApiKeyGuard` validates the Bearer key and loads the **organization creator** as the acting user (for team permissions), plus org context from the key.
 2. Team create/list inject that org automatically.
 3. Routes with `teamId` ensure the team belongs to the key’s organization.
 

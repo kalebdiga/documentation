@@ -5,6 +5,41 @@ openapi: "/openapi.json POST /v1/blitz-api/schedules"
 
 Pass **`teamId` in the body** (not the path). The team must belong to the API key organization.
 
-Required body fields for a typical game create: `teamId`, `eventType`, `eventTitle`, `startDate`, `endDate`, `teamTwoName`, `duration`, `matchupFormat`, `teamFormat`, `isTestGame`, `fieldSizeInYard`, `enableYardage`, `isScrimmage`, `allowZeroYardStart`, `overtimeType`, `overtimeDuration`.
+<Warning>
+**If you do not provide a value for a format field, we set a default on our side** (create only).
+
+You must still send `teamId`, `startDate`, and `teamTwoName` for a typical game. For everything else below, skipping the field means **we fill it** — the field is not left empty.
+
+| Field | Value we set if you do not send it |
+| --- | --- |
+| `eventType` | `game` |
+| `duration` | `30` |
+| `matchupFormat` | `halves` |
+| `teamFormat` | `7v7` |
+| `isTestGame` | `false` |
+| `isScrimmage` | `false` |
+| `enableYardage` | `false` |
+| `allowZeroYardStart` | `false` |
+| `overtimeType` | `unlimited` |
+| `endDate` | `startDate` + `duration` minutes |
+| `fieldSizeInYard` | `50` if `enableYardage` is `true`; otherwise we do not set it |
+| `overtimeDuration` | only needed if you send `overtimeType: limited` (we do not invent a limited OT length) |
+
+If you send a value, we use yours. Send format fields yourself when you need exact game settings.
+</Warning>
+
+You must send: `teamId`, `startDate`, `teamTwoName`.
+
+Other body fields you may send: `eventType`, `endDate`, `duration`, `matchupFormat`, `teamFormat`, `isTestGame`, `isScrimmage`, `enableYardage`, `allowZeroYardStart`, `fieldSizeInYard`, `overtimeType`, `overtimeDuration`, `locationName`, `placeId`, `location`, `practiceNote`.
 
 Do not send `startTime`, `endTime`, or `isRecurring` — those are UI-only and are not accepted by this API.
+
+### Minimal example
+
+```json
+{
+  "teamId": "6917707a0e8f6ee5171235c2",
+  "startDate": "2026-09-26T22:00:00.000Z",
+  "teamTwoName": "Long Island University"
+}
+```

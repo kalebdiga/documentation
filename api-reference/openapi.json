@@ -351,28 +351,16 @@
       },
       "CreateScheduleRequest": {
         "type": "object",
+        "description": "WARNING: If you do not provide a value for a format field on create, we set a default on our side (eventType=game, duration=30, matchupFormat=halves, teamFormat=7v7, booleans false, overtimeType=unlimited, endDate=startDate+duration). You must still send teamId, startDate, and teamTwoName. If you send a value, we use yours.",
         "required": [
           "teamId",
-          "eventType",
-          "eventTitle",
           "startDate",
-          "endDate",
-          "teamTwoName",
-          "duration",
-          "matchupFormat",
-          "teamFormat",
-          "isTestGame",
-          "fieldSizeInYard",
-          "enableYardage",
-          "isScrimmage",
-          "allowZeroYardStart",
-          "overtimeType",
-          "overtimeDuration"
+          "teamTwoName"
         ],
         "properties": {
           "teamId": {
             "type": "string",
-            "description": "Team that owns this schedule",
+            "description": "Team that owns this schedule. You must send this.",
             "example": "6917707a0e8f6ee5171235c2"
           },
           "eventType": {
@@ -381,26 +369,25 @@
               "game",
               "practice"
             ],
+            "description": "If you do not provide this field, we set `game` on our side.",
             "example": "game"
-          },
-          "eventTitle": {
-            "type": "string",
-            "description": "Event title (required for practice; include for games in public API docs)",
-            "example": "Anim iure Nam tempor"
           },
           "startDate": {
             "type": "string",
             "format": "date-time",
+            "description": "When the event starts. You must send this.",
             "example": "2026-09-17T21:00:00.000Z"
           },
           "endDate": {
             "type": "string",
             "format": "date-time",
-            "example": "2026-09-17T21:51:00.000Z"
+            "description": "If you do not provide this field, we set startDate + duration minutes on our side.",
+            "example": "2026-09-17T21:30:00.000Z"
           },
           "teamTwoName": {
             "type": "string",
-            "example": "Mona Hurley"
+            "description": "Opponent display name. You must send this for a typical game.",
+            "example": "Long Island University"
           },
           "duration": {
             "type": "integer",
@@ -413,7 +400,8 @@
               50,
               60
             ],
-            "example": 50
+            "description": "If you do not provide this field, we set `30` on our side.",
+            "example": 30
           },
           "matchupFormat": {
             "type": "string",
@@ -422,7 +410,8 @@
               "quarters",
               "runningClock"
             ],
-            "example": "quarters"
+            "description": "If you do not provide this field, we set `halves` on our side.",
+            "example": "halves"
           },
           "teamFormat": {
             "type": "string",
@@ -435,10 +424,12 @@
               "9v9",
               "11v11"
             ],
+            "description": "If you do not provide this field, we set `7v7` on our side.",
             "example": "7v7"
           },
           "isTestGame": {
             "type": "boolean",
+            "description": "If you do not provide this field, we set `false` on our side.",
             "example": false
           },
           "fieldSizeInYard": {
@@ -454,18 +445,22 @@
               80,
               100
             ],
-            "example": 60
+            "description": "Send when enableYardage is true. If enableYardage is true and you do not provide this field, we set `50` on our side.",
+            "example": 50
           },
           "enableYardage": {
             "type": "boolean",
-            "example": true
+            "description": "If you do not provide this field, we set `false` on our side.",
+            "example": false
           },
           "isScrimmage": {
             "type": "boolean",
-            "example": true
+            "description": "If you do not provide this field, we set `false` on our side.",
+            "example": false
           },
           "allowZeroYardStart": {
             "type": "boolean",
+            "description": "If you do not provide this field, we set `false` on our side.",
             "example": false
           },
           "overtimeType": {
@@ -474,11 +469,12 @@
               "limited",
               "unlimited"
             ],
-            "example": "limited"
+            "description": "If you do not provide this field, we set `unlimited` on our side.",
+            "example": "unlimited"
           },
           "overtimeDuration": {
             "type": "number",
-            "description": "Required when overtimeType is limited (minutes)",
+            "description": "Send when overtimeType is limited (minutes). We do not invent a limited overtime length.",
             "minimum": 1,
             "example": 5
           },
@@ -496,22 +492,9 @@
           }
         },
         "example": {
-          "eventTitle": "Anim iure Nam tempor",
-          "eventType": "game",
+          "teamId": "6917707a0e8f6ee5171235c2",
           "startDate": "2026-09-17T21:00:00.000Z",
-          "endDate": "2026-09-17T21:51:00.000Z",
-          "teamTwoName": "Mona Hurley",
-          "duration": 50,
-          "matchupFormat": "quarters",
-          "teamFormat": "7v7",
-          "isTestGame": false,
-          "fieldSizeInYard": 60,
-          "enableYardage": true,
-          "isScrimmage": true,
-          "allowZeroYardStart": false,
-          "overtimeType": "limited",
-          "overtimeDuration": 5,
-          "teamId": "6917707a0e8f6ee5171235c2"
+          "teamTwoName": "Long Island University"
         }
       },
       "UpdateScheduleRequest": {
@@ -1752,7 +1735,7 @@
           "Schedules"
         ],
         "summary": "Create schedule",
-        "description": "Create a schedule. Pass `teamId` in the body (not the path).",
+        "description": "Create a schedule. Pass `teamId` in the body (not the path).\n\n**WARNING:** If you do not provide a value for a format field, we set a default on our side (eventType=`game`, duration=`30`, matchupFormat=`halves`, teamFormat=`7v7`, booleans=`false`, overtimeType=`unlimited`, endDate=`startDate`+duration). You must still send `teamId`, `startDate`, and `teamTwoName`. If you send a value, we use yours. PATCH does not apply these create defaults.",
         "requestBody": {
           "required": true,
           "content": {
@@ -1761,24 +1744,29 @@
                 "$ref": "#/components/schemas/CreateScheduleRequest"
               },
               "examples": {
-                "default": {
-                  "summary": "Create game schedule",
+                "minimal": {
+                  "summary": "Minimal create (we fill format fields on our side)",
                   "value": {
-                    "eventTitle": "Anim iure Nam tempor",
+                    "teamId": "6917707a0e8f6ee5171235c2",
+                    "startDate": "2026-09-17T21:00:00.000Z",
+                    "teamTwoName": "Long Island University"
+                  }
+                },
+                "full": {
+                  "summary": "Create game with your own format values",
+                  "value": {
                     "eventType": "game",
                     "startDate": "2026-09-17T21:00:00.000Z",
-                    "endDate": "2026-09-17T21:51:00.000Z",
-                    "teamTwoName": "Mona Hurley",
-                    "duration": 50,
-                    "matchupFormat": "quarters",
+                    "endDate": "2026-09-17T21:30:00.000Z",
+                    "teamTwoName": "Long Island University",
+                    "duration": 30,
+                    "matchupFormat": "halves",
                     "teamFormat": "7v7",
                     "isTestGame": false,
-                    "fieldSizeInYard": 60,
-                    "enableYardage": true,
-                    "isScrimmage": true,
+                    "enableYardage": false,
+                    "isScrimmage": false,
                     "allowZeroYardStart": false,
-                    "overtimeType": "limited",
-                    "overtimeDuration": 5,
+                    "overtimeType": "unlimited",
                     "teamId": "6917707a0e8f6ee5171235c2"
                   }
                 }
@@ -1887,7 +1875,7 @@
           "Schedules"
         ],
         "summary": "Update schedule",
-        "description": "Update a schedule by scheduleId. Pass teamId in the request body.",
+        "description": "Update a schedule by scheduleId. Pass teamId in the request body.\n\n**WARNING:** If you do not send a field on PATCH, we leave the existing value unchanged. We do not apply create defaults.",
         "parameters": [
           {
             "name": "scheduleId",

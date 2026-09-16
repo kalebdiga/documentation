@@ -31,7 +31,7 @@ BlitzBoard helps leagues, coaches, and partners manage flag football programs wi
 | --- | --- |
 | **Base path** | All public routes live under `/v1/blitz-api` |
 | **Auth** | `Authorization: Bearer bb_live_...` (API key, not a login JWT) |
-| **Create a key** | [Organizations](https://live.blitzboardstats.com/organizations) → open an organization → generate key |
+| **Create a key** | BlitzBoard **super admin** issues a key for an organization (admin API) |
 | **Org scope** | The key’s `organizationId` is applied automatically — you do not pass org id on public team list/create |
 | **Rate limit** | 100 requests per minute per public controller |
 | **Request ID** | Responses include a request id for support and tracing |
@@ -41,7 +41,7 @@ BlitzBoard helps leagues, coaches, and partners manage flag football programs wi
 ```mermaid
 sequenceDiagram
   participant App as Your app
-  participant Admin as BlitzBoard (JWT)
+  participant Admin as Blitz admin (super admin)
   participant API as Public API
 
   Admin->>Admin: Create API key for organization

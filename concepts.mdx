@@ -11,7 +11,7 @@ import { IdempotencyKeyGenerator } from "/snippets/idempotency-key-generator.jsx
 | --- | --- |
 | Sandbox | `https://sandbox.blitzboardstats.com/api` |
 | Public routes | `/v1/blitz-api/...` |
-| Key management | `/api-keys` (JWT only) |
+| Key management | Admin API `/api-keys` (Blitz super admin only) |
 
 <Note>
   **Mintlify “Try it”:** playground requests are proxied through Mintlify (`api.playground.proxy: true`) so the browser does not hit sandbox CORS. Swagger at `https://sandbox.blitzboardstats.com/api/docs` calls the API same-origin and does not need that proxy.
@@ -99,8 +99,7 @@ Common API-key messages:
 | API key has been revoked                             | Key was revoked                               |
 | API key has expired                                  | Past `expiresAt`                              |
 | Resource is outside the API key organization scope   | Team/org mismatch                             |
-| Not allowed to manage API keys for this organization | JWT user is not creator/admin                 |
 
 ## Permissions
 
-After the API key is accepted, team-level role checks still apply for many player and schedule operations (same permission model as the main app). The acting user is the **user who owns the API key**.
+After the API key is accepted, team-level role checks still apply for many player and schedule operations (same permission model as the main app). The acting user is the **organization creator** for the key’s organization (not the Blitz admin who issued the key).
