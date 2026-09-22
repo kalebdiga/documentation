@@ -1,6 +1,6 @@
 ---
 title: "Introduction"
-description: "Integrate with BlitzBoard using the organization-scoped public API for teams, players, and schedules."
+description: "Integrate with BlitzBoard using the organization-scoped public API for teams, players, schedules, and player statistics."
 keywords: ["blitzboard", "public api", "introduction", "integration"]
 ---
 
@@ -19,6 +19,9 @@ BlitzBoard helps leagues, coaches, and partners manage flag football programs wi
   </Card>
   <Card title="Schedule events" icon="calendar" href="/api-reference/endpoint/create-schedule">
     Create games, practices, and other events under a team.
+  </Card>
+  <Card title="Player statistics" icon="chart-bar" href="/api-reference/endpoint/get-player-statistics">
+    Fetch QB, offensive, defensive, punt, and return stat lists in one call.
   </Card>
   <Card title="Secure by design" icon="shield" href="/authentication">
     Organization-scoped API keys — one key cannot access another org’s data.
@@ -54,6 +57,7 @@ sequenceDiagram
   App->>API: POST /v1/blitz-api/schedules
   App->>API: GET /v1/blitz-api/schedules?filter=upcoming
   App->>API: GET /v1/blitz-api/schedules?filter=live
+  App->>API: GET /v1/blitz-api/teams/:teamId/player-statistics
 ```
 
 ## Next steps
@@ -69,6 +73,6 @@ sequenceDiagram
     Org scope, idempotency, errors, and rate limits.
   </Card>
   <Card title="API reference" icon="code" href="/api-reference/introduction">
-    Full endpoint list for teams, players, and schedules.
+    Full endpoint list for teams, players, schedules, and player statistics.
   </Card>
 </CardGroup>

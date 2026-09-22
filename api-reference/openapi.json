@@ -3,7 +3,7 @@
   "info": {
     "title": "BlitzBoard Public API",
     "version": "1.0.0",
-    "description": "Organization-scoped public integration API for seasons, teams, players, and schedules.\nAuthenticate with `Authorization: Bearer bb_live_...` (API key, not a login JWT).\nGenerate keys from Organizations \u2192 organization detail at https://live.blitzboardstats.com/organizations.\nList seasons via GET /v1/blitz-api/seasons and pass `_id` as `season` when creating a team."
+    "description": "Organization-scoped public integration API for seasons, teams, players, schedules, and team player statistics.\nAuthenticate with `Authorization: Bearer bb_live_...` (API key, not a login JWT).\nGenerate keys from Organizations \u2192 organization detail at https://live.blitzboardstats.com/organizations.\nList seasons via GET /v1/blitz-api/seasons and pass `_id` as `season` when creating a team."
   },
   "servers": [
     {
@@ -807,6 +807,120 @@
           "other"
         ],
         "example": "male"
+      },
+      "PublicPlayerStatisticsCategory": {
+        "type": "string",
+        "enum": [
+          "quarterbackStat",
+          "offensiveStat",
+          "defensiveStat",
+          "puntStat",
+          "returnStat"
+        ],
+        "description": "Player stat list category. Use as repeated `categories` query values."
+      },
+      "PlayerStatListEnvelope": {
+        "type": "object",
+        "required": [
+          "data",
+          "total"
+        ],
+        "properties": {
+          "data": {
+            "type": "array",
+            "description": "Paginated player stat rows for this category (same shape as the corresponding in-app team stat list).",
+            "items": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "example": 42
+          }
+        }
+      },
+      "PublicPlayerStatisticsPayload": {
+        "type": "object",
+        "description": "Always includes all five keys. Requested categories use `{ data, total }`; omitted categories are `{}` (not requested, not an error).",
+        "properties": {
+          "quarterbackStat": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PlayerStatListEnvelope"
+              },
+              {
+                "type": "object",
+                "maxProperties": 0,
+                "description": "Category not included in `categories` filter."
+              }
+            ]
+          },
+          "offensiveStat": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PlayerStatListEnvelope"
+              },
+              {
+                "type": "object",
+                "maxProperties": 0
+              }
+            ]
+          },
+          "defensiveStat": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PlayerStatListEnvelope"
+              },
+              {
+                "type": "object",
+                "maxProperties": 0
+              }
+            ]
+          },
+          "puntStat": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PlayerStatListEnvelope"
+              },
+              {
+                "type": "object",
+                "maxProperties": 0
+              }
+            ]
+          },
+          "returnStat": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PlayerStatListEnvelope"
+              },
+              {
+                "type": "object",
+                "maxProperties": 0,
+                "description": "Punt-return / return specialist stats (not the JavaScript `return` keyword)."
+              }
+            ]
+          }
+        },
+        "required": [
+          "quarterbackStat",
+          "offensiveStat",
+          "defensiveStat",
+          "puntStat",
+          "returnStat"
+        ]
+      },
+      "PublicPlayerStatisticsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/PublicPlayerStatisticsPayload"
+          }
+        },
+        "required": [
+          "data"
+        ]
       }
     },
     "responses": {
@@ -1176,6 +1290,283 @@
                 }
               }
             }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/v1/blitz-api/teams/{teamId}/player-statistics": {
+      "get": {
+        "operationId": "getTeamPlayerStatistics",
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Get team player statistics",
+        "description": "Combined paginated player stat lists for a team (quarterback, offensive, defensive, punt, punt-return).\n\n**Response keys** (under `data`): `quarterbackStat`, `offensiveStat`, `defensiveStat`, `puntStat`, `returnStat`.\n\n**Categories filter:** omit `categories` to fetch all five. Pass repeated `categories` values to limit work, e.g. `categories=quarterbackStat&categories=offensiveStat`. Keys you did not request are returned as empty objects `{}` (meaning \"not requested\", not \"no stats\").\n\n**Season scope:** same filters as in-app team stat lists — completed games by default, optional `scheduleId`, `tournamentId`, `isScrimmage`, `isCompleted`, and `searchTerm`. Pagination uses `pageNo` and `size` per category aggregation.\n\nRequires team permission **read player stats** for the API key's acting user.",
+        "parameters": [
+          {
+            "name": "teamId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "507f1f77bcf86cd799439011"
+            }
+          },
+          {
+            "name": "categories",
+            "in": "query",
+            "required": false,
+            "description": "Stat categories to include. Repeat for multiple values.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/PublicPlayerStatisticsCategory"
+              }
+            },
+            "style": "form",
+            "explode": true,
+            "example": [
+              "quarterbackStat",
+              "offensiveStat"
+            ]
+          },
+          {
+            "name": "scheduleId",
+            "in": "query",
+            "required": false,
+            "description": "Restrict to these schedule IDs. Repeat for multiple.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "style": "form",
+            "explode": true
+          },
+          {
+            "name": "tournamentId",
+            "in": "query",
+            "required": false,
+            "description": "Restrict to these tournament IDs. Repeat for multiple.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "style": "form",
+            "explode": true
+          },
+          {
+            "name": "isScrimmage",
+            "in": "query",
+            "required": false,
+            "description": "When true, only scrimmage games; when false or omitted, only non-scrimmage.",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "isCompleted",
+            "in": "query",
+            "required": false,
+            "description": "When true (default), only completed games; when false, only incomplete games.",
+            "schema": {
+              "type": "boolean",
+              "default": true
+            }
+          },
+          {
+            "name": "searchTerm",
+            "in": "query",
+            "required": false,
+            "description": "Filter by player display name or jersey number (partial match).",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Player statistics by category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicPlayerStatisticsResponse"
+                },
+                "examples": {
+                  "allCategories": {
+                    "summary": "All five categories requested (default)",
+                    "value": {
+                      "data": {
+                        "quarterbackStat": {
+                          "data": [
+                            {
+                              "_id": "66f0a1b2c3d4e5f678901401",
+                              "playerName": "Alex Johnson",
+                              "jerseyNumber": "10",
+                              "passAttempts": 120,
+                              "passCompletions": 80,
+                              "passYards": 980
+                            },
+                            {
+                              "_id": "66f0a1b2c3d4e5f678901402",
+                              "playerName": "Jordan Lee",
+                              "jerseyNumber": "7",
+                              "passAttempts": 45,
+                              "passCompletions": 28,
+                              "passYards": 310
+                            }
+                          ],
+                          "total": 2
+                        },
+                        "offensiveStat": {
+                          "data": [
+                            {
+                              "_id": "66f0a1b2c3d4e5f678901403",
+                              "playerName": "Sam Rivera",
+                              "jerseyNumber": "21",
+                              "rushAttempts": 64,
+                              "rushYards": 412
+                            },
+                            {
+                              "_id": "66f0a1b2c3d4e5f678901404",
+                              "playerName": "Casey Morgan",
+                              "jerseyNumber": "88",
+                              "receptions": 22,
+                              "receivingYards": 275
+                            }
+                          ],
+                          "total": 2
+                        },
+                        "defensiveStat": {
+                          "data": [
+                            {
+                              "_id": "66f0a1b2c3d4e5f678901405",
+                              "playerName": "Taylor Brooks",
+                              "jerseyNumber": "44",
+                              "tackles": 38,
+                              "interceptions": 2
+                            },
+                            {
+                              "_id": "66f0a1b2c3d4e5f678901406",
+                              "playerName": "Riley Quinn",
+                              "jerseyNumber": "52",
+                              "tackles": 29,
+                              "sacks": 4
+                            }
+                          ],
+                          "total": 2
+                        },
+                        "puntStat": {
+                          "data": [
+                            {
+                              "_id": "66f0a1b2c3d4e5f678901407",
+                              "playerName": "Pat Nguyen",
+                              "jerseyNumber": "9",
+                              "punts": 18,
+                              "puntYards": 720
+                            },
+                            {
+                              "_id": "66f0a1b2c3d4e5f678901408",
+                              "playerName": "Chris Alvarez",
+                              "jerseyNumber": "3",
+                              "punts": 6,
+                              "puntYards": 210
+                            }
+                          ],
+                          "total": 2
+                        },
+                        "returnStat": {
+                          "data": [
+                            {
+                              "_id": "66f0a1b2c3d4e5f678901409",
+                              "playerName": "Jamie Ortiz",
+                              "jerseyNumber": "15",
+                              "puntReturns": 12,
+                              "puntReturnYards": 148
+                            },
+                            {
+                              "_id": "66f0a1b2c3d4e5f678901410",
+                              "playerName": "Drew Patel",
+                              "jerseyNumber": "25",
+                              "puntReturns": 8,
+                              "puntReturnYards": 96
+                            }
+                          ],
+                          "total": 2
+                        }
+                      }
+                    }
+                  },
+                  "partialCategories": {
+                    "summary": "categories=quarterbackStat only",
+                    "value": {
+                      "data": {
+                        "quarterbackStat": {
+                          "data": [
+                            {
+                              "_id": "66f0a1b2c3d4e5f678901401",
+                              "playerName": "Alex Johnson",
+                              "jerseyNumber": "10",
+                              "passAttempts": 120,
+                              "passCompletions": 80,
+                              "passYards": 980
+                            },
+                            {
+                              "_id": "66f0a1b2c3d4e5f678901402",
+                              "playerName": "Jordan Lee",
+                              "jerseyNumber": "7",
+                              "passAttempts": 45,
+                              "passCompletions": 28,
+                              "passYards": 310
+                            }
+                          ],
+                          "total": 2
+                        },
+                        "offensiveStat": {},
+                        "defensiveStat": {},
+                        "puntStat": {},
+                        "returnStat": {}
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"

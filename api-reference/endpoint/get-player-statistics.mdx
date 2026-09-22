@@ -1,0 +1,48 @@
+---
+title: "Get team player statistics"
+description: "Combined paginated QB, offensive, defensive, punt, and return stat lists. Response keys use the *Stat suffix (quarterbackStat, returnStat, …). Omit categories to fetch all five; unrequested keys are `{}`."
+openapi: "/openapi.json GET /v1/blitz-api/teams/{teamId}/player-statistics"
+---
+
+## Response shape
+
+The payload is wrapped in `{ data: { … } }`. **`data` always contains five keys:**
+
+| Key | Stat list |
+| --- | --- |
+| `quarterbackStat` | Quarterback passing / QB stats |
+| `offensiveStat` | Offensive skill positions |
+| `defensiveStat` | Defensive stats |
+| `puntStat` | Punter stats |
+| `returnStat` | Punt-return / return stats |
+
+Each key is either:
+
+- **`{ data: [...], total: number }`** — category was requested (including when there are zero rows), or
+- **`{}`** — category was **not** in the `categories` query (not an error; means “not requested”).
+
+## Categories query
+
+Omit `categories` to load all five lists in one call.
+
+To limit database work, repeat the query param:
+
+```http
+GET /v1/blitz-api/teams/{teamId}/player-statistics?categories=quarterbackStat&categories=returnStat
+```
+
+Allowed values: `quarterbackStat`, `offensiveStat`, `defensiveStat`, `puntStat`, `returnStat`.
+
+## Season filters
+
+Same scope as in-app team stat screens:
+
+- `scheduleId`, `tournamentId` — repeat for multiple IDs
+- `isScrimmage` — `true` for scrimmage only; false/omitted for non-scrimmage
+- `isCompleted` — default completed games only
+- `searchTerm` — player name or jersey
+- `pageNo`, `size` — pagination per category
+
+## Permissions
+
+The API key’s acting user must have **read player stats** on the team. The team must belong to the key’s organization.

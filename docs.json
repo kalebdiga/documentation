@@ -44,7 +44,8 @@
                   "api-reference/endpoint/create-team",
                   "api-reference/endpoint/get-team",
                   "api-reference/endpoint/update-team",
-                  "api-reference/endpoint/delete-team"
+                  "api-reference/endpoint/delete-team",
+                  "api-reference/endpoint/get-player-statistics"
                 ]
               },
               {

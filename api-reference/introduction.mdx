@@ -1,12 +1,12 @@
 ---
 title: "API reference"
-description: "Organization-scoped BlitzBoard public endpoints for seasons, teams, players, and schedules."
+description: "Organization-scoped BlitzBoard public endpoints for seasons, teams, players, schedules, and team player statistics."
 ---
 
 ## BlitzBoard Public API overview
 
 This API reference is generated from the OpenAPI contract for `/v1/blitz-api`.
-Use it to sync **seasons**, **teams**, **players**, and **schedules** for the organization bound to your API key.
+Use it to sync **seasons**, **teams**, **players**, **schedules**, and **team player statistics** for the organization bound to your API key.
 
 ## Authentication
 
@@ -24,6 +24,7 @@ Create a key from [Organizations](https://live.blitzboardstats.com/organizations
 2. List or create teams with `GET/POST /v1/blitz-api/teams`.
 3. Manage players under `/v1/blitz-api/teams/{teamId}/players` (create requires [`idem-key`](/concepts#idempotency-key-idem-key)).
 4. Manage schedules with `GET /v1/blitz-api/schedules?filter=live|upcoming`, `POST /v1/blitz-api/schedules` (`teamId` in body), and `/v1/blitz-api/schedules/{scheduleId}` (detail/update/delete).
+5. Read combined team player stat lists with `GET /v1/blitz-api/teams/{teamId}/player-statistics` (optional `categories=quarterbackStat`, …, `returnStat`).
 
 <Card title="OpenAPI Specification" icon="code">
   The contract lives at `api-reference/openapi.json`. Endpoint pages below are generated from that file via the `openapi:` frontmatter pattern.
