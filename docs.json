@@ -44,8 +44,7 @@
                   "api-reference/endpoint/create-team",
                   "api-reference/endpoint/get-team",
                   "api-reference/endpoint/update-team",
-                  "api-reference/endpoint/delete-team",
-                  "api-reference/endpoint/get-player-statistics"
+                  "api-reference/endpoint/delete-team"
                 ]
               },
               {
@@ -64,6 +63,7 @@
                   "api-reference/endpoint/list-schedules",
                   "api-reference/endpoint/create-schedule",
                   "api-reference/endpoint/get-schedule",
+                  "api-reference/endpoint/get-player-statistics",
                   "api-reference/endpoint/update-schedule",
                   "api-reference/endpoint/delete-schedule"
                 ]

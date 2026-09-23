@@ -21,7 +21,7 @@ BlitzBoard helps leagues, coaches, and partners manage flag football programs wi
     Create games, practices, and other events under a team.
   </Card>
   <Card title="Player statistics" icon="chart-bar" href="/api-reference/endpoint/get-player-statistics">
-    Fetch QB, offensive, defensive, punt, and return stat lists in one call.
+    Fetch QB, offensive, defensive, punt, and return stats for one schedule.
   </Card>
   <Card title="Secure by design" icon="shield" href="/authentication">
     Organization-scoped API keys — one key cannot access another org’s data.
@@ -57,7 +57,7 @@ sequenceDiagram
   App->>API: POST /v1/blitz-api/schedules
   App->>API: GET /v1/blitz-api/schedules?filter=upcoming
   App->>API: GET /v1/blitz-api/schedules?filter=live
-  App->>API: GET /v1/blitz-api/teams/:teamId/player-statistics
+  App->>API: GET /v1/blitz-api/schedules/:scheduleId/player-statistics
 ```
 
 ## Next steps

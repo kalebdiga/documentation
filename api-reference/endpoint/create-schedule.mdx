@@ -6,9 +6,19 @@ openapi: "/openapi.json POST /v1/blitz-api/schedules"
 Pass **`teamId` in the body** (not the path). The team must belong to the API key organization.
 
 <Warning>
+**Opponent required:** send at least one of `teamTwoId` or `teamTwoName`.
+
+- `teamTwoName` — guest / external opponent display name
+- `teamTwoId` — linked team in the same API key organization (when only `teamTwoId` is sent, we set `teamTwoName` from that team's name)
+- You may send both
+
+If you omit both, the API returns `400` with: `Either teamTwoId or teamTwoName must be provided`.
+</Warning>
+
+<Warning>
 **If you do not provide a value for a format field, we set a default on our side** (create only).
 
-You must still send `teamId`, `startDate`, and `teamTwoName` for a typical game. For everything else below, skipping the field means **we fill it** — the field is not left empty.
+You must still send `teamId`, `startDate`, and at least one of `teamTwoName` or `teamTwoId`. For everything else below, skipping the field means **we fill it** — the field is not left empty.
 
 | Field | Value we set if you do not send it |
 | --- | --- |
@@ -28,19 +38,29 @@ You must still send `teamId`, `startDate`, and `teamTwoName` for a typical game.
 If you send a value, we use yours. Send format fields yourself when you need exact game settings.
 </Warning>
 
-You must send: `teamId`, `startDate`, `teamTwoName`.
+You must send: `teamId`, `startDate`, and at least one of `teamTwoName` or `teamTwoId`.
 
-Other body fields you may send: `eventType`, `endDate`, `duration`, `matchupFormat`, `teamFormat`, `isTestGame`, `isScrimmage`, `enableYardage`, `allowZeroYardStart`, `fieldSizeInYard`, `overtimeType`, `overtimeDuration`, `locationName`, `placeId`, `location`, `practiceNote`.
+Other body fields you may send: `teamTwoId`, `teamTwoName`, `eventType`, `endDate`, `duration`, `matchupFormat`, `teamFormat`, `isTestGame`, `isScrimmage`, `enableYardage`, `allowZeroYardStart`, `fieldSizeInYard`, `overtimeType`, `overtimeDuration`, `locationName`, `placeId`, `location`, `practiceNote`.
 
 Do not send `startTime`, `endTime`, or `isRecurring` — those are UI-only and are not accepted by this API.
 
-### Minimal example
+### Minimal example (guest opponent name)
 
 ```json
 {
   "teamId": "6917707a0e8f6ee5171235c2",
   "startDate": "2026-09-26T22:00:00.000Z",
   "teamTwoName": "Long Island University"
+}
+```
+
+### Minimal example (linked opponent team)
+
+```json
+{
+  "teamId": "6917707a0e8f6ee5171235c2",
+  "startDate": "2026-09-26T22:00:00.000Z",
+  "teamTwoId": "6917707a0e8f6ee5171235c3"
 }
 ```
 

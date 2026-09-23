@@ -1,48 +1,122 @@
 ---
-title: "Get team player statistics"
-description: "Combined paginated QB, offensive, defensive, punt, and return stat lists. Response keys use the *Stat suffix (quarterbackStat, returnStat, …). Omit categories to fetch all five; unrequested keys are `{}`."
-openapi: "/openapi.json GET /v1/blitz-api/teams/{teamId}/player-statistics"
+title: "Get schedule player statistics"
+description: "All player stat rows for one schedule (no pagination). Each category key is an array. Path uses scheduleId. Omit categories to fetch all five; unrequested keys are `[]`."
+openapi: "/openapi.json GET /v1/blitz-api/schedules/{scheduleId}/player-statistics"
 ---
+
+## Scope
+
+Stats are limited to the **single schedule** in the path. There is no season / multi-game aggregation and **no pagination** — each requested category returns its full list.
+
+The schedule’s home team (`teamOneId`) must belong to the API key organization.
 
 ## Response shape
 
-The payload is wrapped in `{ data: { … } }`. **`data` always contains five keys:**
+```json
+{
+  "data": {
+    "quarterbackStat": [
+      {
+        "_id": "66f0a1b2c3d4e5f678901401",
+        "playerName": "Alex Johnson",
+        "jerseyNumber": "10",
+        "passAttempts": 120,
+        "passCompletions": 80,
+        "passYards": 980
+      },
+      {
+        "_id": "66f0a1b2c3d4e5f678901402",
+        "playerName": "Jordan Lee",
+        "jerseyNumber": "7",
+        "passAttempts": 45,
+        "passCompletions": 28,
+        "passYards": 310
+      }
+    ],
+    "offensiveStat": [
+      {
+        "_id": "66f0a1b2c3d4e5f678901403",
+        "playerName": "Sam Rivera",
+        "jerseyNumber": "21",
+        "rushAttempts": 64,
+        "rushYards": 412
+      },
+      {
+        "_id": "66f0a1b2c3d4e5f678901404",
+        "playerName": "Casey Morgan",
+        "jerseyNumber": "88",
+        "receptions": 22,
+        "receivingYards": 275
+      }
+    ],
+    "defensiveStat": [
+      {
+        "_id": "66f0a1b2c3d4e5f678901405",
+        "playerName": "Taylor Brooks",
+        "jerseyNumber": "44",
+        "tackles": 38,
+        "interceptions": 2
+      },
+      {
+        "_id": "66f0a1b2c3d4e5f678901406",
+        "playerName": "Riley Quinn",
+        "jerseyNumber": "52",
+        "tackles": 29,
+        "sacks": 4
+      }
+    ],
+    "puntStat": [
+      {
+        "_id": "66f0a1b2c3d4e5f678901407",
+        "playerName": "Pat Nguyen",
+        "jerseyNumber": "9",
+        "punts": 18,
+        "puntYards": 720
+      },
+      {
+        "_id": "66f0a1b2c3d4e5f678901408",
+        "playerName": "Chris Alvarez",
+        "jerseyNumber": "3",
+        "punts": 6,
+        "puntYards": 210
+      }
+    ],
+    "returnStat": [
+      {
+        "_id": "66f0a1b2c3d4e5f678901409",
+        "playerName": "Jamie Ortiz",
+        "jerseyNumber": "15",
+        "puntReturns": 12,
+        "puntReturnYards": 148
+      },
+      {
+        "_id": "66f0a1b2c3d4e5f678901410",
+        "playerName": "Drew Patel",
+        "jerseyNumber": "25",
+        "puntReturns": 8,
+        "puntReturnYards": 96
+      }
+    ]
+  }
+}
+```
 
-| Key | Stat list |
+| Key | Meaning |
 | --- | --- |
-| `quarterbackStat` | Quarterback passing / QB stats |
-| `offensiveStat` | Offensive skill positions |
-| `defensiveStat` | Defensive stats |
-| `puntStat` | Punter stats |
-| `returnStat` | Punt-return / return stats |
+| `quarterbackStat` | Quarterback rows (array) |
+| `offensiveStat` | Offensive rows (array) |
+| `defensiveStat` | Defensive rows (array) |
+| `puntStat` | Punter rows (array) |
+| `returnStat` | Punt-return rows (array) |
 
-Each key is either:
-
-- **`{ data: [...], total: number }`** — category was requested (including when there are zero rows), or
-- **`{}`** — category was **not** in the `categories` query (not an error; means “not requested”).
+Unrequested categories (via `categories` filter) are **`[]`**.
 
 ## Categories query
 
-Omit `categories` to load all five lists in one call.
-
-To limit database work, repeat the query param:
-
 ```http
-GET /v1/blitz-api/teams/{teamId}/player-statistics?categories=quarterbackStat&categories=returnStat
+GET /v1/blitz-api/schedules/{scheduleId}/player-statistics?categories=quarterbackStat&categories=returnStat
 ```
 
 Allowed values: `quarterbackStat`, `offensiveStat`, `defensiveStat`, `puntStat`, `returnStat`.
 
-## Season filters
-
-Same scope as in-app team stat screens:
-
-- `scheduleId`, `tournamentId` — repeat for multiple IDs
-- `isScrimmage` — `true` for scrimmage only; false/omitted for non-scrimmage
-- `isCompleted` — default completed games only
-- `searchTerm` — player name or jersey
-- `pageNo`, `size` — pagination per category
-
-## Permissions
-
-The API key’s acting user must have **read player stats** on the team. The team must belong to the key’s organization.
+Optional: `searchTerm`.
