@@ -4,3 +4,5 @@ openapi: "/openapi.json GET /v1/blitz-api/schedules/{scheduleId}"
 ---
 
 Only `scheduleId` is required. The schedule must belong to a team in the API key organization.
+
+When `teamTwoId` is set on the schedule, the response **looks up** that team (same pattern as `teamOneId`) so you get an object with at least `_id` and `name`, not only a bare id string.

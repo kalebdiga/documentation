@@ -1,5 +1,9 @@
 ---
 title: "List schedules"
-description: "List live or upcoming schedules for the API key organization. Use query filter=live or filter=upcoming."
+description: "List live or upcoming schedules for the API key organization. Use query filter=live or filter=upcoming. When present, teamTwoId is looked up like teamOneId."
 openapi: "/openapi.json GET /v1/blitz-api/schedules"
 ---
+
+Use `filter=live` or `filter=upcoming` (default upcoming).
+
+When a schedule has a linked opponent (`teamTwoId`), list items **look up** that team the same way as `teamOneId` (object with `_id`, `name`, and related team fields), instead of returning only a bare id string.

@@ -3,7 +3,7 @@
   "info": {
     "title": "BlitzBoard Public API",
     "version": "1.0.0",
-    "description": "Organization-scoped public integration API for seasons, teams, players, schedules, and team player statistics.\nAuthenticate with `Authorization: Bearer bb_live_...` (API key, not a login JWT).\nGenerate keys from Organizations \u2192 organization detail at https://live.blitzboardstats.com/organizations.\nList seasons via GET /v1/blitz-api/seasons and pass `_id` as `season` when creating a team."
+    "description": "Organization-scoped public integration API for seasons, teams, players, schedules, and team player statistics.\nAuthenticate with `Authorization: Bearer bb_live_...` (API key, not a login JWT).\nGenerate keys from Organizations → organization detail at https://live.blitzboardstats.com/organizations.\nList seasons via GET /v1/blitz-api/seasons and pass `_id` as `season` when creating a team."
   },
   "servers": [
     {
@@ -825,7 +825,7 @@
       },
       "PublicPlayerStatisticsPayload": {
         "type": "object",
-        "description": "Always includes all five keys as arrays. Unrequested categories are [].",
+        "description": "Always includes all five keys as arrays. Unrequested categories are []. Each row includes teamId and teamName when attributable.",
         "required": [
           "quarterbackStat",
           "offensiveStat",
@@ -1346,7 +1346,7 @@
           "Players"
         ],
         "summary": "Create player",
-        "description": "Create a single player. Requires header idem-key (or Idempotency-Key): a client-generated unique string for this create intent. Reusing a key that already created a player returns 409 Conflict and does not create a duplicate. Generate a new key for every new player. See Concepts \u2192 Idempotency key.",
+        "description": "Create a single player. Requires header idem-key (or Idempotency-Key): a client-generated unique string for this create intent. Reusing a key that already created a player returns 409 Conflict and does not create a duplicate. Generate a new key for every new player. See Concepts → Idempotency key.",
         "parameters": [
           {
             "name": "teamId",
@@ -1361,7 +1361,7 @@
             "name": "idem-key",
             "in": "header",
             "required": true,
-            "description": "Client-generated unique string for this create intent (UUID recommended). Also accepted as Idempotency-Key. Same key reused after a successful create \u2192 409 Conflict (Idempotency key already used). Missing \u2192 400.",
+            "description": "Client-generated unique string for this create intent (UUID recommended). Also accepted as Idempotency-Key. Same key reused after a successful create → 409 Conflict (Idempotency key already used). Missing → 400.",
             "schema": {
               "type": "string",
               "example": "550e8400-e29b-41d4-a716-446655440000"
@@ -1714,7 +1714,7 @@
           "Schedules"
         ],
         "summary": "List schedules",
-        "description": "List schedules across the API key owner's teams in the key organization.\n\nQuery `filter`:\n- `upcoming` (default) \u2014 future schedules that are not live\n- `live` \u2014 in-progress schedules\n\nExamples: `GET /v1/blitz-api/schedules?filter=upcoming` \u00b7 `GET /v1/blitz-api/schedules?filter=live`",
+        "description": "List schedules across the API key owner's teams in the key organization.\n\nQuery `filter`:\n- `upcoming` (default) — future schedules that are not live\n- `live` — in-progress schedules\n\nExamples: `GET /v1/blitz-api/schedules?filter=upcoming` · `GET /v1/blitz-api/schedules?filter=live`",
         "parameters": [
           {
             "name": "filter",
@@ -2113,7 +2113,7 @@
           "Schedules"
         ],
         "summary": "Get schedule player statistics",
-        "description": "All player stat rows for **one schedule** (no pagination).\n\n**Response keys** (under `data`): each of `quarterbackStat`, `offensiveStat`, `defensiveStat`, `puntStat`, `returnStat` is an **array** of rows.\n\n**Categories filter:** omit `categories` to fetch all five. Unrequested keys are `[]`.\n\nOptional `searchTerm`. The schedule must belong to the API key organization.",
+        "description": "All player stat rows for **one schedule** (no pagination).\n\nWhen both sides have recorded plays (home and linked away), rows from **both teams** are included. Each row includes `teamId` and `teamName`.\n\n**Optional `teamId` query:** limit to one side (must be `teamOneId` or `teamTwoId` on this schedule). Omit to include both. Invalid `teamId` → `400`.\n\n**Response keys** (under `data`): each of `quarterbackStat`, `offensiveStat`, `defensiveStat`, `puntStat`, `returnStat` is an **array** of rows.\n\n**Categories filter:** omit `categories` to fetch all five. Unrequested keys are `[]`.\n\nOptional `searchTerm`. The schedule must belong to the API key organization.",
         "parameters": [
           {
             "name": "scheduleId",
@@ -2122,6 +2122,16 @@
             "schema": {
               "type": "string",
               "example": "66f0a1b2c3d4e5f678901234"
+            }
+          },
+          {
+            "name": "teamId",
+            "in": "query",
+            "required": false,
+            "description": "Optional. Limit rows to one team on this schedule (home teamOneId or linked teamTwoId). Omit to include both teams when both have plays.",
+            "schema": {
+              "type": "string",
+              "example": "6917707a0e8f6ee5171235c2"
             }
           },
           {
@@ -2167,6 +2177,8 @@
                       "data": {
                         "quarterbackStat": [
                           {
+                            "teamId": "6917707a0e8f6ee5171235c2",
+                            "teamName": "valencia onee",
                             "_id": "66f0a1b2c3d4e5f678901401",
                             "playerName": "Alex Johnson",
                             "jerseyNumber": "10",
@@ -2175,6 +2187,8 @@
                             "passYards": 980
                           },
                           {
+                            "teamId": "6a9f05fa02936ccb365dc5de",
+                            "teamName": "test summary",
                             "_id": "66f0a1b2c3d4e5f678901402",
                             "playerName": "Jordan Lee",
                             "jerseyNumber": "7",
@@ -2185,6 +2199,8 @@
                         ],
                         "offensiveStat": [
                           {
+                            "teamId": "6917707a0e8f6ee5171235c2",
+                            "teamName": "valencia onee",
                             "_id": "66f0a1b2c3d4e5f678901403",
                             "playerName": "Sam Rivera",
                             "jerseyNumber": "21",
@@ -2192,6 +2208,8 @@
                             "rushYards": 412
                           },
                           {
+                            "teamId": "6a9f05fa02936ccb365dc5de",
+                            "teamName": "test summary",
                             "_id": "66f0a1b2c3d4e5f678901404",
                             "playerName": "Casey Morgan",
                             "jerseyNumber": "88",
@@ -2201,6 +2219,8 @@
                         ],
                         "defensiveStat": [
                           {
+                            "teamId": "6917707a0e8f6ee5171235c2",
+                            "teamName": "valencia onee",
                             "_id": "66f0a1b2c3d4e5f678901405",
                             "playerName": "Taylor Brooks",
                             "jerseyNumber": "44",
@@ -2208,6 +2228,8 @@
                             "interceptions": 2
                           },
                           {
+                            "teamId": "6a9f05fa02936ccb365dc5de",
+                            "teamName": "test summary",
                             "_id": "66f0a1b2c3d4e5f678901406",
                             "playerName": "Riley Quinn",
                             "jerseyNumber": "52",
@@ -2217,6 +2239,8 @@
                         ],
                         "puntStat": [
                           {
+                            "teamId": "6917707a0e8f6ee5171235c2",
+                            "teamName": "valencia onee",
                             "_id": "66f0a1b2c3d4e5f678901407",
                             "playerName": "Pat Nguyen",
                             "jerseyNumber": "9",
@@ -2224,6 +2248,8 @@
                             "puntYards": 720
                           },
                           {
+                            "teamId": "6a9f05fa02936ccb365dc5de",
+                            "teamName": "test summary",
                             "_id": "66f0a1b2c3d4e5f678901408",
                             "playerName": "Chris Alvarez",
                             "jerseyNumber": "3",
@@ -2233,6 +2259,8 @@
                         ],
                         "returnStat": [
                           {
+                            "teamId": "6917707a0e8f6ee5171235c2",
+                            "teamName": "valencia onee",
                             "_id": "66f0a1b2c3d4e5f678901409",
                             "playerName": "Jamie Ortiz",
                             "jerseyNumber": "15",
@@ -2240,6 +2268,8 @@
                             "puntReturnYards": 148
                           },
                           {
+                            "teamId": "6a9f05fa02936ccb365dc5de",
+                            "teamName": "test summary",
                             "_id": "66f0a1b2c3d4e5f678901410",
                             "playerName": "Drew Patel",
                             "jerseyNumber": "25",
@@ -2256,6 +2286,8 @@
                       "data": {
                         "quarterbackStat": [
                           {
+                            "teamId": "6917707a0e8f6ee5171235c2",
+                            "teamName": "valencia onee",
                             "_id": "66f0a1b2c3d4e5f678901401",
                             "playerName": "Alex Johnson",
                             "jerseyNumber": "10",

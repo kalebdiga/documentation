@@ -1,12 +1,14 @@
 ---
 title: "Get schedule player statistics"
-description: "All player stat rows for one schedule (no pagination). Each category key is an array. Path uses scheduleId. Omit categories to fetch all five; unrequested keys are `[]`."
+description: "All player stat rows for one schedule (no pagination). Each category key is an array. Rows include teamId and teamName. Optional teamId query limits to one side. Omit categories to fetch all five; unrequested keys are `[]`."
 openapi: "/openapi.json GET /v1/blitz-api/schedules/{scheduleId}/player-statistics"
 ---
 
 ## Scope
 
 Stats are limited to the **single schedule** in the path. There is no season / multi-game aggregation and **no pagination** — each requested category returns its full list.
+
+When both sides have recorded plays (home `teamOneId` and a linked `teamTwoId`), rows from **both teams** are included. Each row has `teamId` and `teamName` so you can tell which side the player belongs to.
 
 The schedule’s home team (`teamOneId`) must belong to the API key organization.
 
@@ -18,6 +20,8 @@ The schedule’s home team (`teamOneId`) must belong to the API key organization
     "quarterbackStat": [
       {
         "_id": "66f0a1b2c3d4e5f678901401",
+        "teamId": "6917707a0e8f6ee5171235c2",
+        "teamName": "valencia onee",
         "playerName": "Alex Johnson",
         "jerseyNumber": "10",
         "passAttempts": 120,
@@ -26,6 +30,8 @@ The schedule’s home team (`teamOneId`) must belong to the API key organization
       },
       {
         "_id": "66f0a1b2c3d4e5f678901402",
+        "teamId": "6a9f05fa02936ccb365dc5de",
+        "teamName": "test summary",
         "playerName": "Jordan Lee",
         "jerseyNumber": "7",
         "passAttempts": 45,
@@ -36,67 +42,17 @@ The schedule’s home team (`teamOneId`) must belong to the API key organization
     "offensiveStat": [
       {
         "_id": "66f0a1b2c3d4e5f678901403",
+        "teamId": "6917707a0e8f6ee5171235c2",
+        "teamName": "valencia onee",
         "playerName": "Sam Rivera",
         "jerseyNumber": "21",
         "rushAttempts": 64,
         "rushYards": 412
-      },
-      {
-        "_id": "66f0a1b2c3d4e5f678901404",
-        "playerName": "Casey Morgan",
-        "jerseyNumber": "88",
-        "receptions": 22,
-        "receivingYards": 275
       }
     ],
-    "defensiveStat": [
-      {
-        "_id": "66f0a1b2c3d4e5f678901405",
-        "playerName": "Taylor Brooks",
-        "jerseyNumber": "44",
-        "tackles": 38,
-        "interceptions": 2
-      },
-      {
-        "_id": "66f0a1b2c3d4e5f678901406",
-        "playerName": "Riley Quinn",
-        "jerseyNumber": "52",
-        "tackles": 29,
-        "sacks": 4
-      }
-    ],
-    "puntStat": [
-      {
-        "_id": "66f0a1b2c3d4e5f678901407",
-        "playerName": "Pat Nguyen",
-        "jerseyNumber": "9",
-        "punts": 18,
-        "puntYards": 720
-      },
-      {
-        "_id": "66f0a1b2c3d4e5f678901408",
-        "playerName": "Chris Alvarez",
-        "jerseyNumber": "3",
-        "punts": 6,
-        "puntYards": 210
-      }
-    ],
-    "returnStat": [
-      {
-        "_id": "66f0a1b2c3d4e5f678901409",
-        "playerName": "Jamie Ortiz",
-        "jerseyNumber": "15",
-        "puntReturns": 12,
-        "puntReturnYards": 148
-      },
-      {
-        "_id": "66f0a1b2c3d4e5f678901410",
-        "playerName": "Drew Patel",
-        "jerseyNumber": "25",
-        "puntReturns": 8,
-        "puntReturnYards": 96
-      }
-    ]
+    "defensiveStat": [],
+    "puntStat": [],
+    "returnStat": []
   }
 }
 ```
@@ -109,7 +65,28 @@ The schedule’s home team (`teamOneId`) must belong to the API key organization
 | `puntStat` | Punter rows (array) |
 | `returnStat` | Punt-return rows (array) |
 
+On each row:
+
+| Field | Meaning |
+| --- | --- |
+| `teamId` | Team this player row belongs to for this schedule |
+| `teamName` | Display name for that team |
+
 Unrequested categories (via `categories` filter) are **`[]`**.
+
+## Optional `teamId` filter
+
+Limit rows to one side of the game:
+
+```http
+GET /v1/blitz-api/schedules/{scheduleId}/player-statistics?teamId=6917707a0e8f6ee5171235c2
+```
+
+- Omit `teamId` → both teams (when both have plays)
+- Provide home `teamOneId` or linked away `teamTwoId` → that team only
+- A `teamId` that is **not** on this schedule → `400` (`teamId must be teamOneId or teamTwoId on this schedule`)
+
+Guest opponents with only `teamTwoName` (no `teamTwoId`) do not get a separate away bucket.
 
 ## Categories query
 
@@ -119,4 +96,4 @@ GET /v1/blitz-api/schedules/{scheduleId}/player-statistics?categories=quarterbac
 
 Allowed values: `quarterbackStat`, `offensiveStat`, `defensiveStat`, `puntStat`, `returnStat`.
 
-Optional: `searchTerm`.
+Optional: `searchTerm` (player display name or jersey number).
