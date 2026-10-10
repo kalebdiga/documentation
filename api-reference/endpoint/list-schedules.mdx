@@ -1,9 +1,18 @@
 ---
 title: "List schedules"
-description: "List live or upcoming schedules for the API key organization. Use query filter=live or filter=upcoming. When present, teamTwoId is looked up like teamOneId."
+description: "List live or upcoming schedules for the API key organization. Use query filter=live or filter=upcoming. When present, teamTwoId is looked up like teamOneId. Each item includes teamOneScore / teamTwoScore and scoreBreakdown."
 openapi: "/openapi.json GET /v1/blitz-api/schedules"
 ---
 
 Use `filter=live` or `filter=upcoming` (default upcoming).
 
 When a schedule has a linked opponent (`teamTwoId`), list items **look up** that team the same way as `teamOneId` (object with `_id`, `name`, and related team fields), instead of returning only a bare id string.
+
+## Scores on each list item
+
+Same as [Get schedule](/api-reference/endpoint/get-schedule):
+
+- `teamOneScore` / `teamTwoScore` — finals (or live totals)
+- `scoreBreakdown` — period arrays sized by `matchupFormat` (`quarters` → 4, `halves` → 2, `runningClock` → `[]`)
+
+Use `scoreBreakdown.teamOne.final` / `scoreBreakdown.teamTwo.final` (or the top-level score fields) for the game total; period columns can under-count when OT or untagged plays exist.

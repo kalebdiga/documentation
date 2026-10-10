@@ -3,7 +3,7 @@
   "info": {
     "title": "BlitzBoard Public API",
     "version": "1.0.0",
-    "description": "Organization-scoped public integration API for seasons, teams, players, schedules, and team player statistics.\nAuthenticate with `Authorization: Bearer bb_live_...` (API key, not a login JWT).\nGenerate keys from Organizations → organization detail at https://live.blitzboardstats.com/organizations.\nList seasons via GET /v1/blitz-api/seasons and pass `_id` as `season` when creating a team."
+    "description": "Organization-scoped public integration API for seasons, teams, players, schedules, and team player statistics.\nAuthenticate with `Authorization: Bearer bb_live_...` (API key, not a login JWT).\nGenerate keys from Organizations \u2192 organization detail at https://live.blitzboardstats.com/organizations.\nList seasons via GET /v1/blitz-api/seasons and pass `_id` as `season` when creating a team."
   },
   "servers": [
     {
@@ -652,17 +652,116 @@
           "teamId": "6917707a0e8f6ee5171235c2"
         }
       },
+      "ScheduleScoreBreakdown": {
+        "type": "object",
+        "description": "Period breakdown by matchupFormat (same rules as Post Game Summary email). final mirrors teamOneScore/teamTwoScore.",
+        "required": [
+          "format",
+          "teamOne",
+          "teamTwo"
+        ],
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": [
+              "halves",
+              "quarters",
+              "runningClock"
+            ]
+          },
+          "teamOne": {
+            "type": "object",
+            "required": [
+              "periods",
+              "final"
+            ],
+            "properties": {
+              "periods": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "description": "Length 4 for quarters, 2 for halves, 0 for runningClock"
+              },
+              "final": {
+                "type": "number"
+              }
+            }
+          },
+          "teamTwo": {
+            "type": "object",
+            "required": [
+              "periods",
+              "final"
+            ],
+            "properties": {
+              "periods": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              },
+              "final": {
+                "type": "number"
+              }
+            }
+          }
+        }
+      },
       "ScheduleResponse": {
         "type": "object",
         "additionalProperties": true,
+        "properties": {
+          "teamOneScore": {
+            "type": "number"
+          },
+          "teamTwoScore": {
+            "type": "number"
+          },
+          "matchupFormat": {
+            "type": "string",
+            "enum": [
+              "halves",
+              "quarters",
+              "runningClock"
+            ]
+          },
+          "scoreBreakdown": {
+            "$ref": "#/components/schemas/ScheduleScoreBreakdown"
+          }
+        },
         "example": {
           "_id": "66f0a1b2c3d4e5f678901456",
-          "eventType": "GAME",
+          "eventType": "game",
           "eventTitle": "Falcons vs Guest Team",
           "startDate": "2026-10-01",
           "endDate": "2026-10-01",
-          "teamId": "66f0a1b2c3d4e5f678901234",
+          "teamOneId": "66f0a1b2c3d4e5f678901234",
           "teamTwoName": "Guest Team",
+          "matchupFormat": "quarters",
+          "teamOneScore": 27,
+          "teamTwoScore": 20,
+          "scoreBreakdown": {
+            "format": "quarters",
+            "teamOne": {
+              "periods": [
+                7,
+                0,
+                13,
+                7
+              ],
+              "final": 27
+            },
+            "teamTwo": {
+              "periods": [
+                0,
+                14,
+                0,
+                6
+              ],
+              "final": 20
+            }
+          },
           "createdAt": "2026-09-13T18:00:00.000Z"
         }
       },
@@ -673,12 +772,36 @@
           "data": [
             {
               "_id": "66f0a1b2c3d4e5f678901456",
-              "eventType": "GAME",
+              "eventType": "game",
               "eventTitle": "Falcons vs Guest Team",
               "startDate": "2026-10-01",
               "endDate": "2026-10-01",
-              "teamId": "66f0a1b2c3d4e5f678901234",
+              "teamOneId": "66f0a1b2c3d4e5f678901234",
               "teamTwoName": "Guest Team",
+              "matchupFormat": "quarters",
+              "teamOneScore": 27,
+              "teamTwoScore": 20,
+              "scoreBreakdown": {
+                "format": "quarters",
+                "teamOne": {
+                  "periods": [
+                    7,
+                    0,
+                    13,
+                    7
+                  ],
+                  "final": 27
+                },
+                "teamTwo": {
+                  "periods": [
+                    0,
+                    14,
+                    0,
+                    6
+                  ],
+                  "final": 20
+                }
+              },
               "createdAt": "2026-09-13T18:00:00.000Z"
             }
           ],
@@ -688,20 +811,8 @@
           "data": {
             "type": "array",
             "items": {
-              "type": "object"
-            },
-            "example": [
-              {
-                "_id": "66f0a1b2c3d4e5f678901456",
-                "eventType": "GAME",
-                "eventTitle": "Falcons vs Guest Team",
-                "startDate": "2026-10-01",
-                "endDate": "2026-10-01",
-                "teamId": "66f0a1b2c3d4e5f678901234",
-                "teamTwoName": "Guest Team",
-                "createdAt": "2026-09-13T18:00:00.000Z"
-              }
-            ]
+              "$ref": "#/components/schemas/ScheduleResponse"
+            }
           },
           "total": {
             "type": "integer",
@@ -825,8 +936,9 @@
       },
       "PublicPlayerStatisticsPayload": {
         "type": "object",
-        "description": "Always includes all five keys as arrays. Unrequested categories are []. Each row includes teamId and teamName when attributable.",
+        "description": "Always includes meta plus all five category keys as arrays. Unrequested categories are []. Each row: category metrics + nested player + teamId/teamName. Special teams = puntStat + returnStat (no specialTeams key).",
         "required": [
+          "meta",
           "quarterbackStat",
           "offensiveStat",
           "defensiveStat",
@@ -834,6 +946,9 @@
           "returnStat"
         ],
         "properties": {
+          "meta": {
+            "$ref": "#/components/schemas/PublicPlayerStatisticsMeta"
+          },
           "quarterbackStat": {
             "type": "array",
             "items": {
@@ -881,6 +996,26 @@
         "required": [
           "data"
         ]
+      },
+      "PublicPlayerStatisticsMeta": {
+        "type": "object",
+        "description": "Schedule scores and period breakdown (identical to schedule GET scoreBreakdown).",
+        "required": [
+          "teamOneScore",
+          "teamTwoScore",
+          "scoreBreakdown"
+        ],
+        "properties": {
+          "teamOneScore": {
+            "type": "number"
+          },
+          "teamTwoScore": {
+            "type": "number"
+          },
+          "scoreBreakdown": {
+            "$ref": "#/components/schemas/ScheduleScoreBreakdown"
+          }
+        }
       }
     },
     "responses": {
@@ -1346,7 +1481,7 @@
           "Players"
         ],
         "summary": "Create player",
-        "description": "Create a single player. Requires header idem-key (or Idempotency-Key): a client-generated unique string for this create intent. Reusing a key that already created a player returns 409 Conflict and does not create a duplicate. Generate a new key for every new player. See Concepts → Idempotency key.",
+        "description": "Create a single player. Requires header idem-key (or Idempotency-Key): a client-generated unique string for this create intent. Reusing a key that already created a player returns 409 Conflict and does not create a duplicate. Generate a new key for every new player. See Concepts \u2192 Idempotency key.",
         "parameters": [
           {
             "name": "teamId",
@@ -1361,7 +1496,7 @@
             "name": "idem-key",
             "in": "header",
             "required": true,
-            "description": "Client-generated unique string for this create intent (UUID recommended). Also accepted as Idempotency-Key. Same key reused after a successful create → 409 Conflict (Idempotency key already used). Missing → 400.",
+            "description": "Client-generated unique string for this create intent (UUID recommended). Also accepted as Idempotency-Key. Same key reused after a successful create \u2192 409 Conflict (Idempotency key already used). Missing \u2192 400.",
             "schema": {
               "type": "string",
               "example": "550e8400-e29b-41d4-a716-446655440000"
@@ -1714,7 +1849,7 @@
           "Schedules"
         ],
         "summary": "List schedules",
-        "description": "List schedules across the API key owner's teams in the key organization.\n\nQuery `filter`:\n- `upcoming` (default) — future schedules that are not live\n- `live` — in-progress schedules\n\nExamples: `GET /v1/blitz-api/schedules?filter=upcoming` · `GET /v1/blitz-api/schedules?filter=live`",
+        "description": "List schedules across the API key owner's teams in the key organization.\n\nQuery `filter`:\n- `upcoming` (default) \u2014 future schedules that are not live\n- `live` \u2014 in-progress schedules\n\nEach item includes `teamOneScore` / `teamTwoScore` and `scoreBreakdown` (period arrays by `matchupFormat`: quarters\u21924, halves\u21922, runningClock\u2192[]).\n\nExamples: `GET /v1/blitz-api/schedules?filter=upcoming` \u00b7 `GET /v1/blitz-api/schedules?filter=live`",
         "parameters": [
           {
             "name": "filter",
@@ -1794,6 +1929,30 @@
                           "endDate": "2026-10-01",
                           "teamOneId": "66f0a1b2c3d4e5f678901234",
                           "teamTwoName": "Guest Team",
+                          "matchupFormat": "quarters",
+                          "teamOneScore": 27,
+                          "teamTwoScore": 20,
+                          "scoreBreakdown": {
+                            "format": "quarters",
+                            "teamOne": {
+                              "periods": [
+                                7,
+                                0,
+                                13,
+                                7
+                              ],
+                              "final": 27
+                            },
+                            "teamTwo": {
+                              "periods": [
+                                0,
+                                14,
+                                0,
+                                6
+                              ],
+                              "final": 20
+                            }
+                          },
                           "isActive": false,
                           "createdAt": "2026-09-13T18:00:00.000Z"
                         }
@@ -1903,7 +2062,7 @@
           "Schedules"
         ],
         "summary": "Get schedule detail",
-        "description": "Get one schedule by scheduleId. No teamId required; the schedule must belong to a team in the API key organization.",
+        "description": "Get one schedule by scheduleId. No teamId required; the schedule must belong to a team in the API key organization.\n\nIncludes `teamOneScore` / `teamTwoScore` and `scoreBreakdown` (period breakdown by `matchupFormat`; `final` mirrors schedule totals). The same `scoreBreakdown` is also under `data.meta` on player-statistics.",
         "parameters": [
           {
             "name": "scheduleId",
@@ -1935,6 +2094,30 @@
                       "endDate": "2026-10-01",
                       "teamOneId": "66f0a1b2c3d4e5f678901234",
                       "teamTwoName": "Guest Team",
+                      "matchupFormat": "quarters",
+                      "teamOneScore": 27,
+                      "teamTwoScore": 20,
+                      "scoreBreakdown": {
+                        "format": "quarters",
+                        "teamOne": {
+                          "periods": [
+                            7,
+                            0,
+                            13,
+                            7
+                          ],
+                          "final": 27
+                        },
+                        "teamTwo": {
+                          "periods": [
+                            0,
+                            14,
+                            0,
+                            6
+                          ],
+                          "final": 20
+                        }
+                      },
                       "createdAt": "2026-09-13T18:00:00.000Z"
                     }
                   }
@@ -2113,7 +2296,7 @@
           "Schedules"
         ],
         "summary": "Get schedule player statistics",
-        "description": "All player stat rows for **one schedule** (no pagination).\n\nWhen both sides have recorded plays (home and linked away), rows from **both teams** are included. Each row includes `teamId` and `teamName`.\n\n**Optional `teamId` query:** limit to one side (must be `teamOneId` or `teamTwoId` on this schedule). Omit to include both. Invalid `teamId` → `400`.\n\n**Response keys** (under `data`): each of `quarterbackStat`, `offensiveStat`, `defensiveStat`, `puntStat`, `returnStat` is an **array** of rows.\n\n**Categories filter:** omit `categories` to fetch all five. Unrequested keys are `[]`.\n\nOptional `searchTerm`. The schedule must belong to the API key organization.",
+        "description": "`data.meta` always includes `teamOneScore` / `teamTwoScore` and `scoreBreakdown` (identical to schedule GET).\n\nAll player stat rows for **one schedule** (no pagination).\n\nEach row includes category metrics plus `teamId` / `teamName` and a nested `player` object (`_id`, `name`, `jerseyNumber`, optional `position` / `profilePicture` / `userId`).\n\nMetric names match the wire (e.g. `totalPassAttempts`, `receptions`, `flagPulls`, `qbPressures`, `interceptionReturnTouchDown`, `totalNumberOfPunts`, `puntReturns`) \u2014 not alternate shorthand such as `playerName` / `passAttempts` / `tackles`.\n\n**Response keys** (under `data`): always `quarterbackStat`, `offensiveStat`, `defensiveStat`, `puntStat`, `returnStat` as arrays.\n\n**Special teams:** no `specialTeams` key \u2014 use `categories=puntStat&categories=returnStat`. Those arrays are often `[]` when there were no punt/return plays. INT-return TDs are `defensiveStat.interceptionReturnTouchDown`.\n\n**Optional `teamId` query:** limit to one side (`teamOneId` or `teamTwoId`). Omit to include both. Invalid `teamId` \u2192 `400`.\n\n**Categories filter:** omit to fetch all five. Unrequested keys are `[]`.\n\nOptional `searchTerm` (matches `player.name` or `player.jerseyNumber`). Schedule must belong to the API key organization.",
         "parameters": [
           {
             "name": "scheduleId",
@@ -2172,134 +2355,640 @@
                 },
                 "examples": {
                   "allCategories": {
-                    "summary": "All five categories (arrays)",
+                    "summary": "Default: all five categories (wire metric fields + nested player)",
                     "value": {
                       "data": {
+                        "meta": {
+                          "teamOneScore": 27,
+                          "teamTwoScore": 20,
+                          "scoreBreakdown": {
+                            "format": "quarters",
+                            "teamOne": {
+                              "periods": [
+                                7,
+                                0,
+                                13,
+                                7
+                              ],
+                              "final": 27
+                            },
+                            "teamTwo": {
+                              "periods": [
+                                0,
+                                14,
+                                0,
+                                6
+                              ],
+                              "final": 20
+                            }
+                          }
+                        },
                         "quarterbackStat": [
                           {
+                            "_id": "694d970270d57829dae62a22",
                             "teamId": "6917707a0e8f6ee5171235c2",
                             "teamName": "valencia onee",
-                            "_id": "66f0a1b2c3d4e5f678901401",
-                            "playerName": "Alex Johnson",
-                            "jerseyNumber": "10",
-                            "passAttempts": 120,
-                            "passCompletions": 80,
-                            "passYards": 980
+                            "qbLongestRush": 54,
+                            "totalPassAttempts": 14,
+                            "totalCompletions": 8,
+                            "totalPassingTouchdown": 3,
+                            "totalQuarterBackRushTouchdown": 3,
+                            "totalQuarterBackGames": 1,
+                            "totalInterceptionThrown": 3,
+                            "totalIncompletePasses": 6,
+                            "totalQuarterBackPoints": 20,
+                            "longestPass": 42,
+                            "totalPassingYards": 115,
+                            "totalQuarterBackRushYards": 54,
+                            "totalQuarterBackRuns": 4,
+                            "totalSacksTaken": 4,
+                            "totalSackYardage": -22,
+                            "extraPoint1": 0,
+                            "extraPoint2": 1,
+                            "extraPoint3": 0,
+                            "attemptedExtraPoint1": 0,
+                            "attemptedExtraPoint2": 1,
+                            "attemptedExtraPoint3": 0,
+                            "totalQuarterBackYards": 169,
+                            "completionPercentage": 57.14285714285714,
+                            "averageTotalPassingYardsPerGame": 115,
+                            "player": {
+                              "_id": "694d970270d57829dae62a22",
+                              "name": "avery collins",
+                              "jerseyNumber": 4
+                            }
                           },
                           {
+                            "_id": "694d970270d57829dae629e5",
                             "teamId": "6a9f05fa02936ccb365dc5de",
                             "teamName": "test summary",
-                            "_id": "66f0a1b2c3d4e5f678901402",
-                            "playerName": "Jordan Lee",
-                            "jerseyNumber": "7",
-                            "passAttempts": 45,
-                            "passCompletions": 28,
-                            "passYards": 310
+                            "qbLongestRush": 0,
+                            "totalPassAttempts": 2,
+                            "totalCompletions": 1,
+                            "totalPassingTouchdown": 0,
+                            "totalQuarterBackRushTouchdown": 1,
+                            "totalQuarterBackGames": 1,
+                            "totalInterceptionThrown": 1,
+                            "totalIncompletePasses": 1,
+                            "totalQuarterBackPoints": 8,
+                            "longestPass": 0,
+                            "totalPassingYards": 0,
+                            "totalQuarterBackRushYards": 0,
+                            "totalQuarterBackRuns": 1,
+                            "totalSacksTaken": 0,
+                            "totalSackYardage": 0,
+                            "extraPoint1": 0,
+                            "extraPoint2": 1,
+                            "extraPoint3": 0,
+                            "attemptedExtraPoint1": 0,
+                            "attemptedExtraPoint2": 1,
+                            "attemptedExtraPoint3": 0,
+                            "totalQuarterBackYards": 0,
+                            "completionPercentage": 50,
+                            "averageTotalPassingYardsPerGame": 0,
+                            "player": {
+                              "_id": "694d970270d57829dae629e5",
+                              "name": "avalon benshoof",
+                              "jerseyNumber": 3
+                            }
                           }
                         ],
                         "offensiveStat": [
                           {
+                            "_id": "694d970270d57829dae62a25",
                             "teamId": "6917707a0e8f6ee5171235c2",
                             "teamName": "valencia onee",
-                            "_id": "66f0a1b2c3d4e5f678901403",
-                            "playerName": "Sam Rivera",
-                            "jerseyNumber": "21",
-                            "rushAttempts": 64,
-                            "rushYards": 412
-                          },
-                          {
-                            "teamId": "6a9f05fa02936ccb365dc5de",
-                            "teamName": "test summary",
-                            "_id": "66f0a1b2c3d4e5f678901404",
-                            "playerName": "Casey Morgan",
-                            "jerseyNumber": "88",
-                            "receptions": 22,
-                            "receivingYards": 275
+                            "points": 40,
+                            "targets": 8,
+                            "receptions": 6,
+                            "touchdownCatches": 5,
+                            "touchdownRun": 1,
+                            "rushingLong": 24,
+                            "receivingLong": 67,
+                            "receivingYards": 242,
+                            "rushingYards": 28,
+                            "receptionPercentage": 75,
+                            "touchdownRunPerGame": 1,
+                            "receivingYardsPerGame": 242,
+                            "rushYardPerGame": 28,
+                            "totalOffensiveYards": 270,
+                            "runs": 3,
+                            "extraPoint1": 2,
+                            "extraPoint2": 1,
+                            "extraPoint3": 0,
+                            "attemptedExtraPoint1": 2,
+                            "attemptedExtraPoint2": 1,
+                            "attemptedExtraPoint3": 0,
+                            "games": 1,
+                            "player": {
+                              "_id": "694d970270d57829dae62a25",
+                              "name": "avalon benshoof",
+                              "jerseyNumber": 3
+                            }
                           }
                         ],
                         "defensiveStat": [
                           {
+                            "_id": "694d970270d57829dae62a25",
                             "teamId": "6917707a0e8f6ee5171235c2",
                             "teamName": "valencia onee",
-                            "_id": "66f0a1b2c3d4e5f678901405",
-                            "playerName": "Taylor Brooks",
-                            "jerseyNumber": "44",
-                            "tackles": 38,
-                            "interceptions": 2
-                          },
-                          {
-                            "teamId": "6a9f05fa02936ccb365dc5de",
-                            "teamName": "test summary",
-                            "_id": "66f0a1b2c3d4e5f678901406",
-                            "playerName": "Riley Quinn",
-                            "jerseyNumber": "52",
-                            "tackles": 29,
-                            "sacks": 4
+                            "qbPressures": 4,
+                            "interceptions": 6,
+                            "deflections": 4,
+                            "sacks": 9,
+                            "flagPulls": 16,
+                            "flagPullForLoss": 3,
+                            "interceptionYards": -10,
+                            "sackYardsForced": -18,
+                            "interceptionReturnTouchDown": 0,
+                            "defensiveExtraPointsMade": 0,
+                            "defensiveTryAttempts": 0,
+                            "defensivePoints": 12,
+                            "safety": 3,
+                            "games": 1,
+                            "player": {
+                              "_id": "694d970270d57829dae62a25",
+                              "name": "avalon benshoof",
+                              "jerseyNumber": 3
+                            }
                           }
                         ],
                         "puntStat": [
                           {
+                            "_id": "694d970270d57829dae62a28",
                             "teamId": "6917707a0e8f6ee5171235c2",
                             "teamName": "valencia onee",
-                            "_id": "66f0a1b2c3d4e5f678901407",
-                            "playerName": "Pat Nguyen",
-                            "jerseyNumber": "9",
-                            "punts": 18,
-                            "puntYards": 720
-                          },
-                          {
-                            "teamId": "6a9f05fa02936ccb365dc5de",
-                            "teamName": "test summary",
-                            "_id": "66f0a1b2c3d4e5f678901408",
-                            "playerName": "Chris Alvarez",
-                            "jerseyNumber": "3",
-                            "punts": 6,
-                            "puntYards": 210
+                            "numberOfGames": 1,
+                            "totalNumberOfPunts": 4,
+                            "totalPuntingYards": 48,
+                            "averagePuntYardage": 24,
+                            "longestPuntYard": 38,
+                            "puntsInside20": 1,
+                            "player": {
+                              "_id": "694d970270d57829dae62a28",
+                              "name": "martha hall",
+                              "jerseyNumber": null
+                            }
                           }
                         ],
                         "returnStat": [
                           {
+                            "_id": "694d970270d57829dae629e6",
                             "teamId": "6917707a0e8f6ee5171235c2",
                             "teamName": "valencia onee",
-                            "_id": "66f0a1b2c3d4e5f678901409",
-                            "playerName": "Jamie Ortiz",
-                            "jerseyNumber": "15",
-                            "puntReturns": 12,
-                            "puntReturnYards": 148
-                          },
-                          {
-                            "teamId": "6a9f05fa02936ccb365dc5de",
-                            "teamName": "test summary",
-                            "_id": "66f0a1b2c3d4e5f678901410",
-                            "playerName": "Drew Patel",
-                            "jerseyNumber": "25",
-                            "puntReturns": 8,
-                            "puntReturnYards": 96
+                            "numberOfGames": 1,
+                            "puntReturns": 1,
+                            "muffedPunts": 0,
+                            "touchdownReturns": 0,
+                            "puntReturnYards": 13,
+                            "longestPuntReturn": 13,
+                            "positiveReturnRate": 100,
+                            "player": {
+                              "_id": "694d970270d57829dae629e6",
+                              "name": "grace leduc",
+                              "jerseyNumber": 16
+                            }
                           }
                         ]
                       }
                     }
                   },
                   "partialCategories": {
-                    "summary": "categories=quarterbackStat only",
+                    "summary": "categories=quarterbackStat only (others [])",
                     "value": {
                       "data": {
+                        "meta": {
+                          "teamOneScore": 27,
+                          "teamTwoScore": 20,
+                          "scoreBreakdown": {
+                            "format": "quarters",
+                            "teamOne": {
+                              "periods": [
+                                7,
+                                0,
+                                13,
+                                7
+                              ],
+                              "final": 27
+                            },
+                            "teamTwo": {
+                              "periods": [
+                                0,
+                                14,
+                                0,
+                                6
+                              ],
+                              "final": 20
+                            }
+                          }
+                        },
                         "quarterbackStat": [
                           {
+                            "_id": "694d970270d57829dae62a22",
                             "teamId": "6917707a0e8f6ee5171235c2",
                             "teamName": "valencia onee",
-                            "_id": "66f0a1b2c3d4e5f678901401",
-                            "playerName": "Alex Johnson",
-                            "jerseyNumber": "10",
-                            "passAttempts": 120,
-                            "passCompletions": 80,
-                            "passYards": 980
+                            "qbLongestRush": 54,
+                            "totalPassAttempts": 14,
+                            "totalCompletions": 8,
+                            "totalPassingTouchdown": 3,
+                            "totalQuarterBackRushTouchdown": 3,
+                            "totalQuarterBackGames": 1,
+                            "totalInterceptionThrown": 3,
+                            "totalIncompletePasses": 6,
+                            "totalQuarterBackPoints": 20,
+                            "longestPass": 42,
+                            "totalPassingYards": 115,
+                            "totalQuarterBackRushYards": 54,
+                            "totalQuarterBackRuns": 4,
+                            "totalSacksTaken": 4,
+                            "totalSackYardage": -22,
+                            "extraPoint1": 0,
+                            "extraPoint2": 1,
+                            "extraPoint3": 0,
+                            "attemptedExtraPoint1": 0,
+                            "attemptedExtraPoint2": 1,
+                            "attemptedExtraPoint3": 0,
+                            "totalQuarterBackYards": 169,
+                            "completionPercentage": 57.14285714285714,
+                            "averageTotalPassingYardsPerGame": 115,
+                            "player": {
+                              "_id": "694d970270d57829dae62a22",
+                              "name": "avery collins",
+                              "jerseyNumber": 4
+                            }
                           }
                         ],
                         "offensiveStat": [],
                         "defensiveStat": [],
                         "puntStat": [],
                         "returnStat": []
+                      }
+                    }
+                  },
+                  "specialTeams": {
+                    "summary": "categories=puntStat&categories=returnStat (special teams)",
+                    "value": {
+                      "data": {
+                        "meta": {
+                          "teamOneScore": 27,
+                          "teamTwoScore": 20,
+                          "scoreBreakdown": {
+                            "format": "quarters",
+                            "teamOne": {
+                              "periods": [
+                                7,
+                                0,
+                                13,
+                                7
+                              ],
+                              "final": 27
+                            },
+                            "teamTwo": {
+                              "periods": [
+                                0,
+                                14,
+                                0,
+                                6
+                              ],
+                              "final": 20
+                            }
+                          }
+                        },
+                        "quarterbackStat": [],
+                        "offensiveStat": [],
+                        "defensiveStat": [],
+                        "puntStat": [
+                          {
+                            "_id": "694d970270d57829dae62a28",
+                            "teamId": "6917707a0e8f6ee5171235c2",
+                            "teamName": "valencia onee",
+                            "numberOfGames": 1,
+                            "totalNumberOfPunts": 4,
+                            "totalPuntingYards": 48,
+                            "averagePuntYardage": 24,
+                            "longestPuntYard": 38,
+                            "puntsInside20": 1,
+                            "player": {
+                              "_id": "694d970270d57829dae62a28",
+                              "name": "martha hall",
+                              "jerseyNumber": null
+                            }
+                          }
+                        ],
+                        "returnStat": [
+                          {
+                            "_id": "694d970270d57829dae629e6",
+                            "teamId": "6917707a0e8f6ee5171235c2",
+                            "teamName": "valencia onee",
+                            "numberOfGames": 1,
+                            "puntReturns": 1,
+                            "muffedPunts": 0,
+                            "touchdownReturns": 0,
+                            "puntReturnYards": 13,
+                            "longestPuntReturn": 13,
+                            "positiveReturnRate": 100,
+                            "player": {
+                              "_id": "694d970270d57829dae629e6",
+                              "name": "grace leduc",
+                              "jerseyNumber": 16
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "emptySpecialTeams": {
+                    "summary": "Game with no punt/return plays (puntStat/returnStat [])",
+                    "value": {
+                      "data": {
+                        "meta": {
+                          "teamOneScore": 27,
+                          "teamTwoScore": 20,
+                          "scoreBreakdown": {
+                            "format": "quarters",
+                            "teamOne": {
+                              "periods": [
+                                7,
+                                0,
+                                13,
+                                7
+                              ],
+                              "final": 27
+                            },
+                            "teamTwo": {
+                              "periods": [
+                                0,
+                                14,
+                                0,
+                                6
+                              ],
+                              "final": 20
+                            }
+                          }
+                        },
+                        "quarterbackStat": [
+                          {
+                            "_id": "694d970270d57829dae62a22",
+                            "teamId": "6917707a0e8f6ee5171235c2",
+                            "teamName": "valencia onee",
+                            "qbLongestRush": 54,
+                            "totalPassAttempts": 14,
+                            "totalCompletions": 8,
+                            "totalPassingTouchdown": 3,
+                            "totalQuarterBackRushTouchdown": 3,
+                            "totalQuarterBackGames": 1,
+                            "totalInterceptionThrown": 3,
+                            "totalIncompletePasses": 6,
+                            "totalQuarterBackPoints": 20,
+                            "longestPass": 42,
+                            "totalPassingYards": 115,
+                            "totalQuarterBackRushYards": 54,
+                            "totalQuarterBackRuns": 4,
+                            "totalSacksTaken": 4,
+                            "totalSackYardage": -22,
+                            "extraPoint1": 0,
+                            "extraPoint2": 1,
+                            "extraPoint3": 0,
+                            "attemptedExtraPoint1": 0,
+                            "attemptedExtraPoint2": 1,
+                            "attemptedExtraPoint3": 0,
+                            "totalQuarterBackYards": 169,
+                            "completionPercentage": 57.14285714285714,
+                            "averageTotalPassingYardsPerGame": 115,
+                            "player": {
+                              "_id": "694d970270d57829dae62a22",
+                              "name": "avery collins",
+                              "jerseyNumber": 4
+                            }
+                          }
+                        ],
+                        "offensiveStat": [
+                          {
+                            "_id": "694d970270d57829dae62a25",
+                            "teamId": "6917707a0e8f6ee5171235c2",
+                            "teamName": "valencia onee",
+                            "points": 40,
+                            "targets": 8,
+                            "receptions": 6,
+                            "touchdownCatches": 5,
+                            "touchdownRun": 1,
+                            "rushingLong": 24,
+                            "receivingLong": 67,
+                            "receivingYards": 242,
+                            "rushingYards": 28,
+                            "receptionPercentage": 75,
+                            "touchdownRunPerGame": 1,
+                            "receivingYardsPerGame": 242,
+                            "rushYardPerGame": 28,
+                            "totalOffensiveYards": 270,
+                            "runs": 3,
+                            "extraPoint1": 2,
+                            "extraPoint2": 1,
+                            "extraPoint3": 0,
+                            "attemptedExtraPoint1": 2,
+                            "attemptedExtraPoint2": 1,
+                            "attemptedExtraPoint3": 0,
+                            "games": 1,
+                            "player": {
+                              "_id": "694d970270d57829dae62a25",
+                              "name": "avalon benshoof",
+                              "jerseyNumber": 3
+                            }
+                          }
+                        ],
+                        "defensiveStat": [
+                          {
+                            "_id": "694d970270d57829dae62a25",
+                            "teamId": "6917707a0e8f6ee5171235c2",
+                            "teamName": "valencia onee",
+                            "qbPressures": 4,
+                            "interceptions": 6,
+                            "deflections": 4,
+                            "sacks": 9,
+                            "flagPulls": 16,
+                            "flagPullForLoss": 3,
+                            "interceptionYards": -10,
+                            "sackYardsForced": -18,
+                            "interceptionReturnTouchDown": 0,
+                            "defensiveExtraPointsMade": 0,
+                            "defensiveTryAttempts": 0,
+                            "defensivePoints": 12,
+                            "safety": 3,
+                            "games": 1,
+                            "player": {
+                              "_id": "694d970270d57829dae62a25",
+                              "name": "avalon benshoof",
+                              "jerseyNumber": 3
+                            }
+                          }
+                        ],
+                        "puntStat": [],
+                        "returnStat": []
+                      }
+                    }
+                  },
+                  "teamIdFilter": {
+                    "summary": "Optional teamId \u2014 one schedule side only",
+                    "value": {
+                      "data": {
+                        "meta": {
+                          "teamOneScore": 27,
+                          "teamTwoScore": 20,
+                          "scoreBreakdown": {
+                            "format": "quarters",
+                            "teamOne": {
+                              "periods": [
+                                7,
+                                0,
+                                13,
+                                7
+                              ],
+                              "final": 27
+                            },
+                            "teamTwo": {
+                              "periods": [
+                                0,
+                                14,
+                                0,
+                                6
+                              ],
+                              "final": 20
+                            }
+                          }
+                        },
+                        "quarterbackStat": [
+                          {
+                            "_id": "694d970270d57829dae62a22",
+                            "teamId": "6917707a0e8f6ee5171235c2",
+                            "teamName": "valencia onee",
+                            "qbLongestRush": 54,
+                            "totalPassAttempts": 14,
+                            "totalCompletions": 8,
+                            "totalPassingTouchdown": 3,
+                            "totalQuarterBackRushTouchdown": 3,
+                            "totalQuarterBackGames": 1,
+                            "totalInterceptionThrown": 3,
+                            "totalIncompletePasses": 6,
+                            "totalQuarterBackPoints": 20,
+                            "longestPass": 42,
+                            "totalPassingYards": 115,
+                            "totalQuarterBackRushYards": 54,
+                            "totalQuarterBackRuns": 4,
+                            "totalSacksTaken": 4,
+                            "totalSackYardage": -22,
+                            "extraPoint1": 0,
+                            "extraPoint2": 1,
+                            "extraPoint3": 0,
+                            "attemptedExtraPoint1": 0,
+                            "attemptedExtraPoint2": 1,
+                            "attemptedExtraPoint3": 0,
+                            "totalQuarterBackYards": 169,
+                            "completionPercentage": 57.14285714285714,
+                            "averageTotalPassingYardsPerGame": 115,
+                            "player": {
+                              "_id": "694d970270d57829dae62a22",
+                              "name": "avery collins",
+                              "jerseyNumber": 4
+                            }
+                          }
+                        ],
+                        "offensiveStat": [
+                          {
+                            "_id": "694d970270d57829dae62a25",
+                            "teamId": "6917707a0e8f6ee5171235c2",
+                            "teamName": "valencia onee",
+                            "points": 40,
+                            "targets": 8,
+                            "receptions": 6,
+                            "touchdownCatches": 5,
+                            "touchdownRun": 1,
+                            "rushingLong": 24,
+                            "receivingLong": 67,
+                            "receivingYards": 242,
+                            "rushingYards": 28,
+                            "receptionPercentage": 75,
+                            "touchdownRunPerGame": 1,
+                            "receivingYardsPerGame": 242,
+                            "rushYardPerGame": 28,
+                            "totalOffensiveYards": 270,
+                            "runs": 3,
+                            "extraPoint1": 2,
+                            "extraPoint2": 1,
+                            "extraPoint3": 0,
+                            "attemptedExtraPoint1": 2,
+                            "attemptedExtraPoint2": 1,
+                            "attemptedExtraPoint3": 0,
+                            "games": 1,
+                            "player": {
+                              "_id": "694d970270d57829dae62a25",
+                              "name": "avalon benshoof",
+                              "jerseyNumber": 3
+                            }
+                          }
+                        ],
+                        "defensiveStat": [
+                          {
+                            "_id": "694d970270d57829dae62a25",
+                            "teamId": "6917707a0e8f6ee5171235c2",
+                            "teamName": "valencia onee",
+                            "qbPressures": 4,
+                            "interceptions": 6,
+                            "deflections": 4,
+                            "sacks": 9,
+                            "flagPulls": 16,
+                            "flagPullForLoss": 3,
+                            "interceptionYards": -10,
+                            "sackYardsForced": -18,
+                            "interceptionReturnTouchDown": 0,
+                            "defensiveExtraPointsMade": 0,
+                            "defensiveTryAttempts": 0,
+                            "defensivePoints": 12,
+                            "safety": 3,
+                            "games": 1,
+                            "player": {
+                              "_id": "694d970270d57829dae62a25",
+                              "name": "avalon benshoof",
+                              "jerseyNumber": 3
+                            }
+                          }
+                        ],
+                        "puntStat": [
+                          {
+                            "_id": "694d970270d57829dae62a28",
+                            "teamId": "6917707a0e8f6ee5171235c2",
+                            "teamName": "valencia onee",
+                            "numberOfGames": 1,
+                            "totalNumberOfPunts": 4,
+                            "totalPuntingYards": 48,
+                            "averagePuntYardage": 24,
+                            "longestPuntYard": 38,
+                            "puntsInside20": 1,
+                            "player": {
+                              "_id": "694d970270d57829dae62a28",
+                              "name": "martha hall",
+                              "jerseyNumber": null
+                            }
+                          }
+                        ],
+                        "returnStat": [
+                          {
+                            "_id": "694d970270d57829dae629e6",
+                            "teamId": "6917707a0e8f6ee5171235c2",
+                            "teamName": "valencia onee",
+                            "numberOfGames": 1,
+                            "puntReturns": 1,
+                            "muffedPunts": 0,
+                            "touchdownReturns": 0,
+                            "puntReturnYards": 13,
+                            "longestPuntReturn": 13,
+                            "positiveReturnRate": 100,
+                            "player": {
+                              "_id": "694d970270d57829dae629e6",
+                              "name": "grace leduc",
+                              "jerseyNumber": 16
+                            }
+                          }
+                        ]
                       }
                     }
                   }

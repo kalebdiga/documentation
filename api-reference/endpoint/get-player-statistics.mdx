@@ -1,55 +1,35 @@
 ---
 title: "Get schedule player statistics"
-description: "All player stat rows for one schedule (no pagination). Each category key is an array. Rows include teamId and teamName. Optional teamId query limits to one side. Omit categories to fetch all five; unrequested keys are `[]`."
+description: "All player stat rows for one schedule (no pagination). Each row includes nested `player`, `teamId` / `teamName`, and category metric fields as returned on the wire. Omit categories to fetch all five; unrequested keys are `[]`."
 openapi: "/openapi.json GET /v1/blitz-api/schedules/{scheduleId}/player-statistics"
 ---
 
 ## Scope
 
-Stats are limited to the **single schedule** in the path. There is no season / multi-game aggregation and **no pagination** — each requested category returns its full list.
+Stats are limited to the **single schedule** in the path. There is no season / multi-game rollup and **no pagination** — each requested category returns its full list.
 
-When both sides have recorded plays (home `teamOneId` and a linked `teamTwoId`), rows from **both teams** are included. Each row has `teamId` and `teamName` so you can tell which side the player belongs to.
+Each row includes category metrics plus `teamId`, `teamName`, and a nested `player` object (`_id`, `name`, `jerseyNumber`, and optional `position` / `profilePicture` / `userId`).
 
-The schedule’s home team (`teamOneId`) must belong to the API key organization.
+When both sides have recorded plays (home `teamOneId` and a linked `teamTwoId`), rows from **both teams** are included. The schedule’s home team (`teamOneId`) must belong to the API key organization.
 
-## Response shape
+## Envelope
+
+Always:
 
 ```json
 {
   "data": {
-    "quarterbackStat": [
-      {
-        "_id": "66f0a1b2c3d4e5f678901401",
-        "teamId": "6917707a0e8f6ee5171235c2",
-        "teamName": "valencia onee",
-        "playerName": "Alex Johnson",
-        "jerseyNumber": "10",
-        "passAttempts": 120,
-        "passCompletions": 80,
-        "passYards": 980
-      },
-      {
-        "_id": "66f0a1b2c3d4e5f678901402",
-        "teamId": "6a9f05fa02936ccb365dc5de",
-        "teamName": "test summary",
-        "playerName": "Jordan Lee",
-        "jerseyNumber": "7",
-        "passAttempts": 45,
-        "passCompletions": 28,
-        "passYards": 310
+    "meta": {
+      "teamOneScore": 27,
+      "teamTwoScore": 14,
+      "scoreBreakdown": {
+        "format": "quarters",
+        "teamOne": { "periods": [7, 0, 13, 7], "final": 27 },
+        "teamTwo": { "periods": [0, 7, 0, 7], "final": 14 }
       }
-    ],
-    "offensiveStat": [
-      {
-        "_id": "66f0a1b2c3d4e5f678901403",
-        "teamId": "6917707a0e8f6ee5171235c2",
-        "teamName": "valencia onee",
-        "playerName": "Sam Rivera",
-        "jerseyNumber": "21",
-        "rushAttempts": 64,
-        "rushYards": 412
-      }
-    ],
+    },
+    "quarterbackStat": [],
+    "offensiveStat": [],
     "defensiveStat": [],
     "puntStat": [],
     "returnStat": []
@@ -57,26 +37,249 @@ The schedule’s home team (`teamOneId`) must belong to the API key organization
 }
 ```
 
-| Key | Meaning |
+| Scenario | Behavior |
 | --- | --- |
-| `quarterbackStat` | Quarterback rows (array) |
-| `offensiveStat` | Offensive rows (array) |
-| `defensiveStat` | Defensive rows (array) |
-| `puntStat` | Punter rows (array) |
-| `returnStat` | Punt-return rows (array) |
+| Omit `categories` | All five keys populated (or `[]` if no rows for that category) |
+| `categories=quarterbackStat&categories=offensiveStat` | Only those arrays may have rows; other keys are `[]` |
+| Special teams only | `categories=puntStat&categories=returnStat` — no `specialTeams` key |
+| `teamId=<home\|away>` | Same five keys; rows limited to that schedule side |
+| No plays / empty ST | Arrays stay `[]` (common for `puntStat` / `returnStat`) |
 
-On each row:
+## Meta (scores + period breakdown)
 
-| Field | Meaning |
+`data.meta` is always present (same shape whether or not you filter `categories` / `teamId`):
+
+| Field | Description |
 | --- | --- |
-| `teamId` | Team this player row belongs to for this schedule |
-| `teamName` | Display name for that team |
+| `teamOneScore` / `teamTwoScore` | Authoritative finals from the schedule |
+| `scoreBreakdown` | Same object as [Get schedule](/api-reference/endpoint/get-schedule) — `format` + per-team `periods` + `final` |
 
-Unrequested categories (via `categories` filter) are **`[]`**.
+Use `meta.scoreBreakdown.periods` for quarter/half columns. Do **not** invent a period split from the final alone (e.g. `0-0-0-0` with a total of 27). Treat `meta.teamOneScore` / `meta.teamTwoScore` and `scoreBreakdown.*.final` as the game total.
+
+## Categories
+
+| Wire key | What's included |
+| --- | --- |
+| `quarterbackStat` | Pass, QB rush, sacks taken, extra points |
+| `offensiveStat` | Receptions, rushes, extra points |
+| `defensiveStat` | Flag pulls, sacks, interceptions, pressures; interception-return touchdowns |
+| `puntStat` | Punting |
+| `returnStat` | Punt returns |
+
+There is **no** `specialTeams` array. Interception-return touchdowns are `defensiveStat.interceptionReturnTouchDown`, not `returnStat`.
+
+## Shared row fields
+
+Every non-empty row includes:
+
+| Field | Description |
+| --- | --- |
+| `_id` | Player id |
+| `teamId` | Schedule side team id |
+| `teamName` | Team display name |
+| `player` | Nested player: `_id`, `name`, `jerseyNumber`, optional `position`, `profilePicture`, `userId` |
+
+Do **not** expect flat `playerName` / `jerseyNumber` on the row root. Metric names match the wire (e.g. `totalPassAttempts`, `flagPulls`), not alternate shorthand.
+
+### Nested `player`
+
+```json
+{
+  "_id": "694d970270d57829dae62a22",
+  "name": "avery collins",
+  "jerseyNumber": 4,
+  "position": ["quarterBack", "wideReceiver"],
+  "profilePicture": null,
+  "userId": "69175b0a22df2a74c331bad1"
+}
+```
+
+`jerseyNumber` may be a string or number; `position`, `profilePicture`, and `userId` are omitted or null when unset.
+
+## Example (all categories)
+
+Representative response shape:
+
+```json
+{
+  "data": {
+    "meta": {
+      "teamOneScore": 27,
+      "teamTwoScore": 14,
+      "scoreBreakdown": {
+        "format": "quarters",
+        "teamOne": { "periods": [7, 0, 13, 7], "final": 27 },
+        "teamTwo": { "periods": [0, 7, 0, 7], "final": 14 }
+      }
+    },
+    "quarterbackStat": [
+      {
+        "_id": "694d970270d57829dae62a22",
+        "teamId": "6917707a0e8f6ee5171235c2",
+        "teamName": "valencia onee",
+        "qbLongestRush": 54,
+        "totalPassAttempts": 14,
+        "totalCompletions": 8,
+        "totalPassingTouchdown": 3,
+        "totalQuarterBackRushTouchdown": 3,
+        "totalQuarterBackGames": 1,
+        "totalInterceptionThrown": 3,
+        "totalIncompletePasses": 6,
+        "totalQuarterBackPoints": 20,
+        "longestPass": 42,
+        "totalPassingYards": 115,
+        "totalQuarterBackRushYards": 54,
+        "totalQuarterBackRuns": 4,
+        "totalSacksTaken": 4,
+        "totalSackYardage": -22,
+        "extraPoint1": 0,
+        "extraPoint2": 1,
+        "extraPoint3": 0,
+        "attemptedExtraPoint1": 0,
+        "attemptedExtraPoint2": 1,
+        "attemptedExtraPoint3": 0,
+        "totalQuarterBackYards": 169,
+        "completionPercentage": 57.14285714285714,
+        "averageTotalPassingYardsPerGame": 115,
+        "player": {
+          "_id": "694d970270d57829dae62a22",
+          "name": "avery collins",
+          "jerseyNumber": 4
+        }
+      }
+    ],
+    "offensiveStat": [
+      {
+        "_id": "694d970270d57829dae62a25",
+        "teamId": "6917707a0e8f6ee5171235c2",
+        "teamName": "valencia onee",
+        "points": 40,
+        "targets": 8,
+        "receptions": 6,
+        "touchdownCatches": 5,
+        "touchdownRun": 1,
+        "rushingLong": 24,
+        "receivingLong": 67,
+        "receivingYards": 242,
+        "rushingYards": 28,
+        "receptionPercentage": 75,
+        "touchdownRunPerGame": 1,
+        "receivingYardsPerGame": 242,
+        "rushYardPerGame": 28,
+        "totalOffensiveYards": 270,
+        "runs": 3,
+        "extraPoint1": 2,
+        "extraPoint2": 1,
+        "extraPoint3": 0,
+        "attemptedExtraPoint1": 2,
+        "attemptedExtraPoint2": 1,
+        "attemptedExtraPoint3": 0,
+        "games": 1,
+        "player": {
+          "_id": "694d970270d57829dae62a25",
+          "name": "avalon benshoof",
+          "jerseyNumber": 3
+        }
+      }
+    ],
+    "defensiveStat": [
+      {
+        "_id": "694d970270d57829dae62a25",
+        "teamId": "6917707a0e8f6ee5171235c2",
+        "teamName": "valencia onee",
+        "qbPressures": 4,
+        "interceptions": 6,
+        "deflections": 4,
+        "sacks": 9,
+        "flagPulls": 16,
+        "flagPullForLoss": 3,
+        "interceptionYards": -10,
+        "sackYardsForced": -18,
+        "interceptionReturnTouchDown": 0,
+        "defensiveExtraPointsMade": 0,
+        "defensiveTryAttempts": 0,
+        "defensivePoints": 12,
+        "safety": 3,
+        "games": 1,
+        "player": {
+          "_id": "694d970270d57829dae62a25",
+          "name": "avalon benshoof",
+          "jerseyNumber": 3
+        }
+      }
+    ],
+    "puntStat": [
+      {
+        "_id": "694d970270d57829dae62a28",
+        "teamId": "6917707a0e8f6ee5171235c2",
+        "teamName": "valencia onee",
+        "numberOfGames": 1,
+        "totalNumberOfPunts": 4,
+        "totalPuntingYards": 48,
+        "averagePuntYardage": 24,
+        "longestPuntYard": 38,
+        "puntsInside20": 1,
+        "player": {
+          "_id": "694d970270d57829dae62a28",
+          "name": "martha hall",
+          "jerseyNumber": null
+        }
+      }
+    ],
+    "returnStat": [
+      {
+        "_id": "694d970270d57829dae629e6",
+        "teamId": "6917707a0e8f6ee5171235c2",
+        "teamName": "valencia onee",
+        "numberOfGames": 1,
+        "puntReturns": 1,
+        "muffedPunts": 0,
+        "touchdownReturns": 0,
+        "puntReturnYards": 13,
+        "longestPuntReturn": 13,
+        "positiveReturnRate": 100,
+        "player": {
+          "_id": "694d970270d57829dae629e6",
+          "name": "grace leduc",
+          "jerseyNumber": 16
+        }
+      }
+    ]
+  }
+}
+```
+
+## Metric fields by category
+
+### `quarterbackStat`
+
+`qbLongestRush`, `totalPassAttempts`, `totalCompletions`, `totalPassingTouchdown`, `totalQuarterBackRushTouchdown`, `totalQuarterBackGames`, `totalInterceptionThrown`, `totalIncompletePasses`, `totalQuarterBackPoints`, `longestPass`, `totalPassingYards`, `totalQuarterBackRushYards`, `totalQuarterBackRuns`, `totalSacksTaken`, `totalSackYardage`, `extraPoint1`–`extraPoint3`, `attemptedExtraPoint1`–`attemptedExtraPoint3`, `totalQuarterBackYards`, `completionPercentage`, `averageTotalPassingYardsPerGame`
+
+### `offensiveStat`
+
+`points`, `targets`, `receptions`, `touchdownCatches`, `touchdownRun`, `rushingLong`, `receivingLong`, `receivingYards`, `rushingYards`, `receptionPercentage`, `touchdownRunPerGame`, `receivingYardsPerGame`, `rushYardPerGame`, `totalOffensiveYards`, `runs`, `extraPoint1`–`extraPoint3`, `attemptedExtraPoint1`–`attemptedExtraPoint3`, `games`
+
+### `defensiveStat`
+
+`qbPressures`, `interceptions`, `deflections`, `sacks`, `flagPulls`, `flagPullForLoss`, `interceptionYards`, `sackYardsForced`, `interceptionReturnTouchDown`, `defensiveExtraPointsMade`, `defensiveTryAttempts`, `defensivePoints`, `safety`, `games`
+
+### `puntStat`
+
+`numberOfGames`, `totalNumberOfPunts`, `totalPuntingYards`, `averagePuntYardage`, `longestPuntYard`, `puntsInside20`
+
+### `returnStat`
+
+`numberOfGames`, `puntReturns`, `muffedPunts`, `touchdownReturns`, `puntReturnYards`, `longestPuntReturn`, `positiveReturnRate`
+
+## Special teams
+
+```http
+GET /v1/blitz-api/schedules/{scheduleId}/player-statistics?categories=puntStat&categories=returnStat
+```
+
+Response still includes all five keys; QB / offense / defense are `[]`.
 
 ## Optional `teamId` filter
-
-Limit rows to one side of the game:
 
 ```http
 GET /v1/blitz-api/schedules/{scheduleId}/player-statistics?teamId=6917707a0e8f6ee5171235c2
@@ -96,4 +299,4 @@ GET /v1/blitz-api/schedules/{scheduleId}/player-statistics?categories=quarterbac
 
 Allowed values: `quarterbackStat`, `offensiveStat`, `defensiveStat`, `puntStat`, `returnStat`.
 
-Optional: `searchTerm` (player display name or jersey number).
+Optional: `searchTerm` (matches `player.name` or `player.jerseyNumber`).

@@ -6,3 +6,34 @@ openapi: "/openapi.json GET /v1/blitz-api/schedules/{scheduleId}"
 Only `scheduleId` is required. The schedule must belong to a team in the API key organization.
 
 When `teamTwoId` is set on the schedule, the response **looks up** that team (same pattern as `teamOneId`) so you get an object with at least `_id` and `name`, not only a bare id string.
+
+## Scores
+
+- `teamOneScore` / `teamTwoScore` — final (or live running) game totals on the schedule.
+- `matchupFormat` — `quarters`, `halves`, or `runningClock` (default on create is often `halves`).
+- `scoreBreakdown` — period breakdown derived from scoring plays (`points` + `clockStage`), same layout as the Post Game Summary email:
+
+| `matchupFormat` | `scoreBreakdown.format` | `periods.length` |
+| --- | --- | --- |
+| `quarters` | `quarters` | 4 (Q1–Q4); overtime excluded from periods |
+| `halves` | `halves` | 2 (1H–2H); non-1st stages including OT go in period 2 |
+| `runningClock` | `runningClock` | 0 (empty arrays; use `final` only) |
+
+`scoreBreakdown.teamOne.final` / `scoreBreakdown.teamTwo.final` always mirror `teamOneScore` / `teamTwoScore`. Period sums can be lower than `final` when OT (quarters) or plays lack `clockStage` — treat `final` as authoritative.
+
+Example (`matchupFormat: "quarters"`):
+
+```json
+{
+  "teamOneScore": 27,
+  "teamTwoScore": 20,
+  "matchupFormat": "quarters",
+  "scoreBreakdown": {
+    "format": "quarters",
+    "teamOne": { "periods": [7, 0, 13, 7], "final": 27 },
+    "teamTwo": { "periods": [0, 14, 0, 6], "final": 20 }
+  }
+}
+```
+
+The same `scoreBreakdown` object is also available under `data.meta` on [Get schedule player statistics](/api-reference/endpoint/get-player-statistics).
